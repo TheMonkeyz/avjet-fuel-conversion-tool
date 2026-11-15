@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Uplift 15</string>
+
+    <!-- Language switch: shows the language you switch TO -->
+    <string name="lang_switch">Français</string>
+    <string name="lang_switch_tag" translatable="false">fr</string>
+
+    <string name="tab_volume">Volume</string>
+    <string name="tab_chart">Density chart</string>
+    <string name="tab_density15">Density 15 °C</string>
+
+    <string name="product_jet_a1" translatable="false">Jet A-1 / JP-8</string>
+    <string name="product_jet_a" translatable="false">Jet A</string>
+    <string name="product_avgas" translatable="false">Avgas 100LL</string>
+    <string name="product_other">Other fuel (by density)</string>
+    <string name="product_custom">Custom coefficient</string>
+
+    <string name="hint_jet_a1">Spec: 775–840 kg/m³ (ASTM D1655, DEF STAN 91-091)</string>
+    <string name="hint_jet_a">Spec: 775–840 kg/m³ (ASTM D1655)</string>
+    <string name="hint_avgas">Typical: 695–740 kg/m³ (ASTM D910)</string>
+    <string name="hint_other">Table 54B covers 653–1075 kg/m³</string>
+
+    <string name="unit_litres">Litres</string>
+    <string name="unit_us_gallons">US gallons</string>
+    <string name="unit_l">L</string>
+    <string name="unit_us_gal">US gal</string>
+
+    <string name="label_fuel">Fuel</string>
+    <string name="label_alpha">Expansion coefficient (per °C)</string>
+    <string name="support_alpha">Example: 0.00093 for Jet A-1, 0.00128 for avgas</string>
+    <string name="label_density15">Density at 15 °C (kg/m³)</string>
+    <string name="support_density15">From the fuel release note. %1$s</string>
+    <string name="label_volume">Volume (%1$s)</string>
+    <string name="label_temp">Temp (°C)</string>
+    <string name="support_meter">From the meter</string>
+    <string name="support_at_meter">At the meter</string>
+    <string name="label_density">Density (kg/m³)</string>
+    <string name="support_as_read">As read on the meter</string>
+    <string name="support_when_measured">When measured</string>
+    <string name="not_a_number">Not a number</string>
+
+    <string name="glass_title">Glass hydrometer</string>
+    <string name="glass_desc">On: corrects for the glass expanding (Table 53). Off for a digital density meter.</string>
+
+    <string name="prompt_fill">Fill in all the fields to see the result.</string>
+    <string name="prompt_density">Type the measured density and temperature.</string>
+    <string name="err_calc">Cannot calculate with these values.</string>
+    <string name="err_convert">Cannot convert these values.</string>
+
+    <string name="result_volume15">Volume corrected to 15 °C</string>
+    <string name="result_density15">Density corrected to 15 °C</string>
+    <string name="line_vcf">Correction factor (VCF) to 15 °C</string>
+    <string name="line_mass">Fuel mass</string>
+    <string name="line_density_obs">Density at fuel temperature</string>
+    <string name="line_hyc">Glass hydrometer correction</string>
+    <string name="line_alpha">Expansion coefficient α15</string>
+    <string name="line_table">Table used</string>
+    <string name="btn_use_density">Use this density in the volume calculator</string>
+
+    <string name="chart_need_density">The density chart needs a fuel with a density. Pick Jet A-1, Jet A, Avgas or Other fuel.</string>
+    <string name="chart_prompt">Type the density at 15 °C to see the chart.</string>
+    <string name="chart_err">Cannot build the chart with this density.</string>
+    <string name="chart_title">%1$s at %2$s kg/m³ (15 °C)</string>
+    <string name="chart_desc">Density and volume correction factor (VCF) at each temperature.</string>
+    <string name="chart_marked">Marked row: closest to your fuel temperature of %1$s °C.</string>
+
+    <string name="group_gasoline">Gasoline / avgas (Table 54B)</string>
+    <string name="group_transition">Transition zone (Table 54B)</string>
+    <string name="group_jet">Jet fuel / kerosene (Table 54B)</string>
+    <string name="group_fuel_oil">Fuel oil / diesel (Table 54B)</string>
+    <string name="group_custom">Custom coefficient</string>
+
+    <string name="err_density_nan">Density must be a number.</string>
+    <string name="err_density_range">Density must be between %1$s and %2$s kg/m³.</string>
+    <string name="err_temp_range">Temperature must be between %1$s and %2$s °C.</string>
+    <string name="err_volume_neg">Volume must be zero or more.</string>
+    <string name="err_coef_range">Coefficient must be between 0 and 0.01 per °C.</string>
+    <string name="err_step">Step must be more than zero.</string>
+    <string name="err_start_end">Start temperature must not be above the end temperature.</string>
+    <string name="err_density_pos">Density must be a number above zero.</string>
+    <string name="err_density15_table">Density at 15 °C would be %1$s kg/m³, outside the table (%2$s to %3$s).</string>
+
+    <!-- Mass to volume: how much fuel to order -->
+    <string name="mode_volume_to_mass">Volume → mass</string>
+    <string name="mode_mass_to_volume">Mass → volume</string>
+    <string name="unit_kg">kg</string>
+    <string name="unit_lb">lb</string>
+    <string name="label_needed">Fuel needed (%1$s)</string>
+    <string name="support_needed">Total for the flight</string>
+    <string name="label_on_board">On board (%1$s)</string>
+    <string name="support_on_board">Empty if none</string>
+    <string name="support_fuel_temp">Fuel temperature at the meter</string>
+    <string name="prompt_fill_mass">Type the fuel needed and the fuel temperature.</string>
+    <string name="no_fuel_needed">No fuel needed. The fuel on board is enough.</string>
+    <string name="result_order">Volume to order at %1$s °C</string>
+    <string name="line_uplift_mass">Fuel to add</string>
+    <string name="line_volume15">Volume at 15 °C</string>
+    <string name="mass_needs_density">Mass → volume needs a density. Pick Jet A-1, Jet A, Avgas or Other fuel.</string>
+    <string name="err_mass_neg">Mass must be zero or more.</string>
+
+    <string name="disclaimer">Based on ASTM D1250-80 / API MPMS 11.1 generalized equations (Table 54B, 15 °C base). For guidance only. Use the certified figures from the fuel release note for the load sheet.</string>
+</resources>

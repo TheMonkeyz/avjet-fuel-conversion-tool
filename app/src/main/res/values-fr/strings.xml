@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- French. A no-break space (&#160;) goes before ":" as French typography requires. -->
+<resources>
+    <string name="lang_switch">English</string>
+    <string name="lang_switch_tag" translatable="false">en</string>
+
+    <string name="tab_volume">Volume</string>
+    <string name="tab_chart">Tableau</string>
+    <string name="tab_density15">Densité 15 °C</string>
+
+    <string name="product_other">Autre carburant (selon masse vol.)</string>
+    <string name="product_custom">Coefficient personnalisé</string>
+
+    <string name="hint_jet_a1">Spéc.&#160;: 775–840 kg/m³ (ASTM D1655, DEF STAN 91-091)</string>
+    <string name="hint_jet_a">Spéc.&#160;: 775–840 kg/m³ (ASTM D1655)</string>
+    <string name="hint_avgas">Typique&#160;: 695–740 kg/m³ (ASTM D910)</string>
+    <string name="hint_other">La table 54B couvre 653–1075 kg/m³</string>
+
+    <string name="unit_litres">Litres</string>
+    <string name="unit_us_gallons">Gallons US</string>
+    <string name="unit_l">L</string>
+    <string name="unit_us_gal">gal US</string>
+
+    <string name="label_fuel">Carburant</string>
+    <string name="label_alpha">Coefficient de dilatation (par °C)</string>
+    <string name="support_alpha">Exemple&#160;: 0,00093 pour Jet A-1, 0,00128 pour l’avgas</string>
+    <string name="label_density15">Masse volumique à 15 °C (kg/m³)</string>
+    <string name="support_density15">Voir le bon de livraison. %1$s</string>
+    <string name="label_volume">Volume (%1$s)</string>
+    <string name="label_temp">Temp. (°C)</string>
+    <string name="support_meter">Au compteur</string>
+    <string name="support_at_meter">Au compteur</string>
+    <string name="label_density">Masse vol. (kg/m³)</string>
+    <string name="support_as_read">Lue sur l’appareil</string>
+    <string name="support_when_measured">Lors de la mesure</string>
+    <string name="not_a_number">Nombre non valide</string>
+
+    <string name="glass_title">Aréomètre en verre</string>
+    <string name="glass_desc">Activé&#160;: corrige la dilatation du verre (table 53). Désactivé pour un densimètre numérique.</string>
+
+    <string name="prompt_fill">Remplissez tous les champs pour voir le résultat.</string>
+    <string name="prompt_density">Entrez la masse volumique et la température mesurées.</string>
+    <string name="err_calc">Calcul impossible avec ces valeurs.</string>
+    <string name="err_convert">Conversion impossible avec ces valeurs.</string>
+
+    <string name="result_volume15">Volume corrigé à 15 °C</string>
+    <string name="result_density15">Masse volumique corrigée à 15 °C</string>
+    <string name="line_vcf">Facteur de correction (VCF) à 15 °C</string>
+    <string name="line_mass">Masse de carburant</string>
+    <string name="line_density_obs">Masse vol. à la température du carburant</string>
+    <string name="line_hyc">Correction de l’aréomètre</string>
+    <string name="line_alpha">Coefficient de dilatation α15</string>
+    <string name="line_table">Table utilisée</string>
+    <string name="btn_use_density">Utiliser cette valeur pour le calcul du volume</string>
+
+    <string name="chart_need_density">Le tableau a besoin d’une masse volumique. Choisissez Jet A-1, Jet A, Avgas ou Autre carburant.</string>
+    <string name="chart_prompt">Entrez la masse volumique à 15 °C pour voir le tableau.</string>
+    <string name="chart_err">Impossible de faire le tableau avec cette masse volumique.</string>
+    <string name="chart_title">%1$s à %2$s kg/m³ (15 °C)</string>
+    <string name="chart_desc">Masse volumique et facteur de correction de volume (VCF) à chaque température.</string>
+    <string name="chart_marked">Ligne marquée&#160;: la plus proche de votre température de %1$s °C.</string>
+
+    <string name="group_gasoline">Essence / avgas (table 54B)</string>
+    <string name="group_transition">Zone de transition (table 54B)</string>
+    <string name="group_jet">Carburéacteur / kérosène (table 54B)</string>
+    <string name="group_fuel_oil">Mazout / diesel (table 54B)</string>
+    <string name="group_custom">Coefficient personnalisé</string>
+
+    <string name="err_density_nan">La masse volumique doit être un nombre.</string>
+    <string name="err_density_range">La masse volumique doit être entre %1$s et %2$s kg/m³.</string>
+    <string name="err_temp_range">La température doit être entre %1$s et %2$s °C.</string>
+    <string name="err_volume_neg">Le volume doit être zéro ou plus.</string>
+    <string name="err_coef_range">Le coefficient doit être entre 0 et 0,01 par °C.</string>
+    <string name="err_step">Le pas doit être plus grand que zéro.</string>
+    <string name="err_start_end">La température de départ ne doit pas dépasser celle de fin.</string>
+    <string name="err_density_pos">La masse volumique doit être un nombre plus grand que zéro.</string>
+    <string name="err_density15_table">La masse volumique à 15 °C serait de %1$s kg/m³, hors table (%2$s à %3$s).</string>
+
+    <!-- Masse vers volume : quantité à commander -->
+    <string name="mode_volume_to_mass">Volume → masse</string>
+    <string name="mode_mass_to_volume">Masse → volume</string>
+    <string name="unit_kg">kg</string>
+    <string name="unit_lb">lb</string>
+    <string name="label_needed">Requis (%1$s)</string>
+    <string name="support_needed">Total pour le vol</string>
+    <string name="label_on_board">À bord (%1$s)</string>
+    <string name="support_on_board">Vide si aucun</string>
+    <string name="support_fuel_temp">Température du carburant au compteur</string>
+    <string name="prompt_fill_mass">Entrez le carburant requis et la température du carburant.</string>
+    <string name="no_fuel_needed">Aucun ajout requis. Le carburant à bord suffit.</string>
+    <string name="result_order">Volume à commander à %1$s °C</string>
+    <string name="line_uplift_mass">Carburant à ajouter</string>
+    <string name="line_volume15">Volume à 15 °C</string>
+    <string name="mass_needs_density">Masse → volume a besoin d’une masse volumique. Choisissez Jet A-1, Jet A, Avgas ou Autre carburant.</string>
+    <string name="err_mass_neg">La masse doit être zéro ou plus.</string>
+
+    <string name="disclaimer">Selon les équations générales ASTM D1250-80 / API MPMS 11.1 (table 54B, base 15 °C). À titre indicatif seulement. Utilisez les valeurs certifiées du bon de livraison pour le devis de masse et centrage.</string>
+</resources>
