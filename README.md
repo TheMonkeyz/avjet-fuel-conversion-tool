@@ -82,3 +82,21 @@ The Android SDK location comes from `ANDROID_HOME` or `local.properties` (`sdk.d
 
 For guidance only. It is not a certified measurement. Use the certified figures from the fuel
 release note for the load sheet.
+
+## Build and release
+
+GitHub Actions (`.github/workflows/build.yml`) runs the tests and builds the app on every push and
+pull request. A push to `main` gives a signed APK under the run's artifacts.
+
+To publish a release, push a version tag:
+
+```
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+The pipeline then makes a GitHub Release with `uplift-15-1.1.0.apk`.
+
+The release key is not in the repo. It is in the repository secrets (`KEYSTORE_BASE64`,
+`KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Keep a backup of the key: without it,
+installed apps cannot be updated.
