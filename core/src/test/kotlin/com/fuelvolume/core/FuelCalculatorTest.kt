@@ -264,7 +264,7 @@ class FuelCalculatorTest {
     }
 
     @Test
-    fun `45 API is about 0_8016 kg per litre at 15 C`() {
+    fun `45 API is about 0_8013 kg per litre at 15 C`() {
         // SG = 141.5 / 176.5 = 0.80170; at 60 °F: 0.80170 × 999.016 = 800.91 kg/m³
         val r = FuelCalculator.densityFromApiGravity(45.0)
         assertClose(0.801700, r.relativeDensity60F, 0.000001)

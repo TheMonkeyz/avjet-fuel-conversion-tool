@@ -247,7 +247,7 @@ test('volume for mass rejects a negative mass', () => {
   assertFuelError(() => volumeForMass(800.0, -1.0, 20.0), ErrorCode.MASS_NEGATIVE);
 });
 
-test('45 API is about 0_8016 kg per litre at 15 C', () => {
+test('45 API is about 0_8013 kg per litre at 15 C', () => {
   const r = densityFromApiGravity(45.0);
   assertClose(0.8017, r.relativeDensity60F, 0.000001);
   assertClose(800.91, r.density60F, 0.01);
