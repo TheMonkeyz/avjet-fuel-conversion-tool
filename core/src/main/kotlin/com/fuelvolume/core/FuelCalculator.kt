@@ -44,6 +44,7 @@ sealed class FuelError {
     data object StartAboveEnd : FuelError()
     data object DensityNotPositive : FuelError()
     data class Density15OutOfTable(val density15: Double, val min: Double, val max: Double) : FuelError()
+    data object ApiNotValid : FuelError()
 }
 
 /** Thrown for bad input. Extends [IllegalArgumentException] so callers can still catch that. */
@@ -138,6 +139,17 @@ data class DensityAt15Result(
 ) {
     val density15KgPerLitre: Double get() = density15 / 1000.0
 }
+
+/** Result of converting an API gravity (°API at 60 °F) to a density. */
+data class ApiGravityResult(
+    val apiGravity: Double,
+    /** Relative density (specific gravity) 60/60 °F. */
+    val relativeDensity60F: Double,
+    /** Density at 60 °F (15.56 °C), kg/m³. */
+    val density60F: Double,
+    /** The density at 60 °F carried to 15 °C with Table 54B. */
+    val at15: DensityAt15Result,
+)
 
 /**
  * Volume correction for petroleum products with temperature.
@@ -324,6 +336,34 @@ object FuelCalculator {
             "Density at 15 °C would be ${"%.1f".format(density15)} kg/m³, outside the table ($MIN_DENSITY to $MAX_DENSITY)."
         }
         return DensityAt15Result(density15 = density15, group = group, alpha15 = alpha15, vcf = vcf, hydrometerCorrection = hyc)
+    }
+
+    /** 60 °F in °C, the reference temperature of API gravity. */
+    const val API_REF_TEMP_C = (60.0 - 32.0) * 5.0 / 9.0
+
+    /** Density of water at 60 °F, kg/m³ (API MPMS 11.5). */
+    const val WATER_DENSITY_60F = 999.016
+
+    /**
+     * Converts an API gravity to a density at 15 °C.
+     *
+     *   relative density 60/60 °F = 141.5 / (°API + 131.5)
+     *   density at 60 °F = relative density × density of water at 60 °F
+     *
+     * Then the density at 60 °F (15.56 °C) is carried to 15 °C with [densityAt15].
+     */
+    fun densityFromApiGravity(apiGravity: Double): ApiGravityResult {
+        requireFuel(apiGravity.isFinite() && apiGravity > -131.5, { FuelError.ApiNotValid }) {
+            "API gravity must be a number above -131.5."
+        }
+        val relativeDensity = 141.5 / (apiGravity + 131.5)
+        val density60F = relativeDensity * WATER_DENSITY_60F
+        return ApiGravityResult(
+            apiGravity = apiGravity,
+            relativeDensity60F = relativeDensity,
+            density60F = density60F,
+            at15 = densityAt15(density60F, API_REF_TEMP_C),
+        )
     }
 
     private const val MAX_ITERATIONS = 100

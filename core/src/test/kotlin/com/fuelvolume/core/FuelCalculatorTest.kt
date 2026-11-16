@@ -262,4 +262,33 @@ class FuelCalculatorTest {
         val e = assertFailsWith<FuelException> { FuelCalculator.volumeForMass(800.0, -1.0, 20.0) }
         assertEquals(FuelError.MassNegative, e.error)
     }
+
+    @Test
+    fun `45 API is about 0_8016 kg per litre at 15 C`() {
+        // SG = 141.5 / 176.5 = 0.80170; at 60 °F: 0.80170 × 999.016 = 800.91 kg/m³
+        val r = FuelCalculator.densityFromApiGravity(45.0)
+        assertClose(0.801700, r.relativeDensity60F, 0.000001)
+        assertClose(800.91, r.density60F, 0.01)
+        // 15 °C is colder than 60 °F, so the fuel is a little denser
+        assertTrue(r.at15.density15 > r.density60F)
+        assertClose(801.32, r.at15.density15, 0.05)
+        assertTrue(r.at15.group == FormulaGroup.JET)
+    }
+
+    @Test
+    fun `10 API is the density of water`() {
+        val r = FuelCalculator.densityFromApiGravity(10.0)
+        assertClose(1.0, r.relativeDensity60F, 1e-12)
+        assertClose(FuelCalculator.WATER_DENSITY_60F, r.density60F, 1e-9)
+    }
+
+    @Test
+    fun `API conversion refuses bad values`() {
+        val e = assertFailsWith<FuelException> { FuelCalculator.densityFromApiGravity(-140.0) }
+        assertTrue(e.error == FuelError.ApiNotValid)
+        assertFailsWith<FuelException> { FuelCalculator.densityFromApiGravity(Double.NaN) }
+        // 150 °API is about 0.46 kg/L, lighter than Table 54B covers
+        val out = assertFailsWith<FuelException> { FuelCalculator.densityFromApiGravity(150.0) }
+        assertTrue(out.error is FuelError.Density15OutOfTable)
+    }
 }

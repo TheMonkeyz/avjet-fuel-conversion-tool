@@ -11,10 +11,10 @@
     <string name="product_other">Autre carburant (selon masse vol.)</string>
     <string name="product_custom">Coefficient personnalisé</string>
 
-    <string name="hint_jet_a1">Spéc.&#160;: 775–840 kg/m³ (ASTM D1655, DEF STAN 91-091)</string>
-    <string name="hint_jet_a">Spéc.&#160;: 775–840 kg/m³ (ASTM D1655)</string>
-    <string name="hint_avgas">Typique&#160;: 695–740 kg/m³ (ASTM D910)</string>
-    <string name="hint_other">La table 54B couvre 653–1075 kg/m³</string>
+    <string name="hint_jet_a1">Spéc.&#160;: 0,775–0,840 kg/L (ASTM D1655, DEF STAN 91-091)</string>
+    <string name="hint_jet_a">Spéc.&#160;: 0,775–0,840 kg/L (ASTM D1655)</string>
+    <string name="hint_avgas">Typique&#160;: 0,695–0,740 kg/L (ASTM D910)</string>
+    <string name="hint_other">La table 54B couvre 0,653–1,075 kg/L</string>
 
     <string name="unit_litres">Litres</string>
     <string name="unit_us_gallons">Gallons US</string>
@@ -24,13 +24,13 @@
     <string name="label_fuel">Carburant</string>
     <string name="label_alpha">Coefficient de dilatation (par °C)</string>
     <string name="support_alpha">Exemple&#160;: 0,00093 pour Jet A-1, 0,00128 pour l’avgas</string>
-    <string name="label_density15">Masse volumique à 15 °C (kg/m³)</string>
+    <string name="label_density15">Masse volumique à 15 °C (kg/L)</string>
     <string name="support_density15">Voir le bon de livraison. %1$s</string>
     <string name="label_volume">Volume (%1$s)</string>
     <string name="label_temp">Temp. (°C)</string>
     <string name="support_meter">Au compteur</string>
     <string name="support_at_meter">Au compteur</string>
-    <string name="label_density">Masse vol. (kg/m³)</string>
+    <string name="label_density">Masse vol. (kg/L)</string>
     <string name="support_as_read">Lue sur l’appareil</string>
     <string name="support_when_measured">Lors de la mesure</string>
     <string name="not_a_number">Nombre non valide</string>
@@ -56,7 +56,7 @@
     <string name="chart_need_density">Le tableau a besoin d’une masse volumique. Choisissez Jet A-1, Jet A, Avgas ou Autre carburant.</string>
     <string name="chart_prompt">Entrez la masse volumique à 15 °C pour voir le tableau.</string>
     <string name="chart_err">Impossible de faire le tableau avec cette masse volumique.</string>
-    <string name="chart_title">%1$s à %2$s kg/m³ (15 °C)</string>
+    <string name="chart_title">%1$s à %2$s kg/L (15 °C)</string>
     <string name="chart_desc">Masse volumique et facteur de correction de volume (VCF) à chaque température.</string>
     <string name="chart_marked">Ligne marquée&#160;: la plus proche de votre température de %1$s °C.</string>
 
@@ -67,14 +67,14 @@
     <string name="group_custom">Coefficient personnalisé</string>
 
     <string name="err_density_nan">La masse volumique doit être un nombre.</string>
-    <string name="err_density_range">La masse volumique doit être entre %1$s et %2$s kg/m³.</string>
+    <string name="err_density_range">La masse volumique doit être entre %1$s et %2$s kg/L.</string>
     <string name="err_temp_range">La température doit être entre %1$s et %2$s °C.</string>
     <string name="err_volume_neg">Le volume doit être zéro ou plus.</string>
     <string name="err_coef_range">Le coefficient doit être entre 0 et 0,01 par °C.</string>
     <string name="err_step">Le pas doit être plus grand que zéro.</string>
     <string name="err_start_end">La température de départ ne doit pas dépasser celle de fin.</string>
     <string name="err_density_pos">La masse volumique doit être un nombre plus grand que zéro.</string>
-    <string name="err_density15_table">La masse volumique à 15 °C serait de %1$s kg/m³, hors table (%2$s à %3$s).</string>
+    <string name="err_density15_table">La masse volumique à 15 °C serait de %1$s kg/L, hors table (%2$s à %3$s).</string>
 
     <!-- Masse vers volume : quantité à commander -->
     <string name="mode_volume_to_mass">Volume → masse</string>
@@ -95,4 +95,12 @@
     <string name="err_mass_neg">La masse doit être zéro ou plus.</string>
 
     <string name="disclaimer">Selon les équations générales ASTM D1250-80 / API MPMS 11.1 (table 54B, base 15 °C). À titre indicatif seulement. Utilisez les valeurs certifiées du bon de livraison pour le devis de masse et centrage.</string>
+    <string name="density_mode_measured">Masse vol. mesurée</string>
+    <string name="density_mode_api">Densité API</string>
+    <string name="label_api">Densité API (°API)</string>
+    <string name="support_api">À 60 °F, voir les documents du carburant</string>
+    <string name="prompt_api">Entrez la densité API.</string>
+    <string name="line_sg">Densité relative 60/60 °F</string>
+    <string name="line_density_60f">Masse vol. à 60 °F</string>
+    <string name="err_api">La densité API doit être un nombre supérieur à −131,5.</string>
 </resources>

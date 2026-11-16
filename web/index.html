@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Avjet fuel conversion tool</title>
+  <meta name="description" content="Aviation fuel volume correction to 15 °C (ASTM D1250-80 / API MPMS 11.1 Table 54B). Works offline.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#8FD0FF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#123447" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Avjet fuel">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" sizes="180x180">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="bar-row">
+      <h1 id="app-title">Avjet fuel conversion tool</h1>
+      <button type="button" id="lang-btn" class="lang-btn" lang="fr">Français</button>
+    </div>
+    <div class="tabs" role="tablist" id="tablist" aria-labelledby="app-title">
+      <button type="button" role="tab" id="tab-0" aria-controls="panel" aria-selected="true" tabindex="0" data-tab="0">Volume</button>
+      <button type="button" role="tab" id="tab-1" aria-controls="panel" aria-selected="false" tabindex="-1" data-tab="1">Density chart</button>
+      <button type="button" role="tab" id="tab-2" aria-controls="panel" aria-selected="false" tabindex="-1" data-tab="2">Density 15 °C</button>
+    </div>
+  </header>
+
+  <main id="panel" role="tabpanel" aria-labelledby="tab-0" tabindex="-1">
+    <noscript><p class="card">This app needs JavaScript.</p></noscript>
+
+    <!-- Volume tab: Volume → mass / Mass → volume -->
+    <fieldset class="seg" id="sec-mode" hidden>
+      <legend class="sr-only" data-i18n="label_mode">Calculation</legend>
+      <label><input type="radio" name="mode" value="volume"><span data-i18n="mode_volume_to_mass">Volume → mass</span></label>
+      <label><input type="radio" name="mode" value="mass"><span data-i18n="mode_mass_to_volume">Mass → volume</span></label>
+    </fieldset>
+
+    <!-- Fuel picker (Volume and Density chart tabs) -->
+    <div class="field" id="sec-fuel" hidden>
+      <label for="in-product" data-i18n="label_fuel">Fuel</label>
+      <select id="in-product"></select>
+    </div>
+
+    <div class="field" id="f-alpha" hidden>
+      <label for="in-alpha" id="lbl-alpha" data-i18n="label_alpha"></label>
+      <input id="in-alpha" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-alpha">
+      <p class="support" id="sup-alpha"></p>
+    </div>
+
+    <div class="field" id="f-density" hidden>
+      <label for="in-density" data-i18n="label_density15"></label>
+      <input id="in-density" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-density">
+      <p class="support" id="sup-density"></p>
+    </div>
+
+    <!-- Volume → mass -->
+    <section id="sec-calc" class="stack" hidden>
+      <fieldset class="seg">
+        <legend class="sr-only" data-i18n="label_volume_unit">Volume unit</legend>
+        <label><input type="radio" name="unit-calc" value="LITRE"><span data-i18n="unit_litres">Litres</span></label>
+        <label><input type="radio" name="unit-calc" value="US_GALLON"><span data-i18n="unit_us_gallons">US gallons</span></label>
+      </fieldset>
+      <div class="row">
+        <div class="field">
+          <label for="in-volume" id="lbl-volume"></label>
+          <input id="in-volume" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-volume" data-positive>
+          <p class="support" id="sup-volume"></p>
+        </div>
+        <div class="field">
+          <label for="in-temp-calc" data-i18n="label_temp"></label>
+          <input id="in-temp-calc" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-temp-calc">
+          <p class="support" id="sup-temp-calc"></p>
+        </div>
+      </div>
+      <div class="card result" id="card-calc" aria-live="polite"></div>
+    </section>
+
+    <!-- Mass → volume -->
+    <section id="sec-mass" class="stack" hidden>
+      <div class="card result" id="card-mass-custom" aria-live="polite" hidden></div>
+      <div id="mass-body" class="stack">
+        <fieldset class="seg">
+          <legend class="sr-only" data-i18n="label_mass_unit">Mass unit</legend>
+          <label><input type="radio" name="mass-unit" value="kg"><span data-i18n="unit_kg">kg</span></label>
+          <label><input type="radio" name="mass-unit" value="lb"><span data-i18n="unit_lb">lb</span></label>
+        </fieldset>
+        <div class="row">
+          <div class="field">
+            <label for="in-needed" id="lbl-needed"></label>
+            <input id="in-needed" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-needed" data-positive>
+            <p class="support" id="sup-needed"></p>
+          </div>
+          <div class="field">
+            <label for="in-onboard" id="lbl-onboard"></label>
+            <input id="in-onboard" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-onboard" data-positive>
+            <p class="support" id="sup-onboard"></p>
+          </div>
+        </div>
+        <fieldset class="seg">
+          <legend class="sr-only" data-i18n="label_volume_unit">Volume unit</legend>
+          <label><input type="radio" name="unit-mass" value="LITRE"><span data-i18n="unit_litres">Litres</span></label>
+          <label><input type="radio" name="unit-mass" value="US_GALLON"><span data-i18n="unit_us_gallons">US gallons</span></label>
+        </fieldset>
+        <div class="field">
+          <label for="in-temp-mass" data-i18n="label_temp"></label>
+          <input id="in-temp-mass" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-temp-mass">
+          <p class="support" id="sup-temp-mass"></p>
+        </div>
+        <div class="card result" id="card-mass" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- Density chart -->
+    <section id="sec-chart" hidden>
+      <div class="card chart-card" id="card-chart" aria-live="polite"></div>
+    </section>
+
+    <!-- Density 15 °C -->
+    <section id="sec-d15" class="stack" hidden>
+      <fieldset class="seg">
+        <legend class="sr-only" data-i18n="label_density_mode">Density input</legend>
+        <label><input type="radio" name="d15-mode" value="measured"><span data-i18n="density_mode_measured">Measured density</span></label>
+        <label><input type="radio" name="d15-mode" value="api"><span data-i18n="density_mode_api">API gravity</span></label>
+      </fieldset>
+
+      <div id="d15-measured" class="stack">
+        <div class="row">
+          <div class="field">
+            <label for="in-mdensity" data-i18n="label_density"></label>
+            <input id="in-mdensity" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-mdensity" data-positive>
+            <p class="support" id="sup-mdensity"></p>
+          </div>
+          <div class="field">
+            <label for="in-mtemp" data-i18n="label_temp"></label>
+            <input id="in-mtemp" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-mtemp">
+            <p class="support" id="sup-mtemp"></p>
+          </div>
+        </div>
+        <div class="switch-row">
+          <div>
+            <label for="in-glass" class="switch-title" data-i18n="glass_title">Glass hydrometer</label>
+            <p class="support" id="glass-desc" data-i18n="glass_desc"></p>
+          </div>
+          <input type="checkbox" role="switch" id="in-glass" class="switch" aria-describedby="glass-desc">
+        </div>
+        <div class="card result" id="card-measured" aria-live="polite"></div>
+      </div>
+
+      <div id="d15-api" class="stack">
+        <div class="field">
+          <label for="in-api" data-i18n="label_api"></label>
+          <input id="in-api" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" aria-describedby="sup-api">
+          <p class="support" id="sup-api"></p>
+        </div>
+        <div class="card result" id="card-api" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <p class="disclaimer" data-i18n="disclaimer"></p>
+    <p class="disclaimer"><a href="https://github.com/TheMonkeyz/avjet-fuel-conversion-tool">Source code</a> · <a href="https://www.gnu.org/licenses/gpl-3.0.html" rel="license">GPL-3.0-or-later</a></p>
+  </main>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function (e) { console.warn('Service worker not registered', e); });
+      });
+    }
+  </script>
+</body>
+</html>

@@ -61,6 +61,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fuelvolume.core.ApiGravityResult
 import com.fuelvolume.core.DensityAt15Result
 import com.fuelvolume.core.DensityPoint
 import com.fuelvolume.core.FormulaGroup
@@ -90,6 +91,12 @@ class MainActivity : AppCompatActivity() {
 /** Parses "12.5" and "12,5" the same way. Returns null when the text is not a number. */
 private fun String.toNumberOrNull(): Double? = trim().replace(',', '.').toDoubleOrNull()
 
+/** The screen shows density in kg/L. The core works in kg/m³ (1 kg/L = 1000 kg/m³). */
+private fun Double.kgm3ToKgL(): Double = this / 1000.0
+private fun Double.kgLToKgm3(): Double = this * 1000.0
+/** Density for an input box, in kg/L, with the decimal mark of [locale]. The boxes accept a dot or a comma. */
+private fun Double.kgLText(locale: Locale, decimals: Int = 3): String = String.format(locale, "%.${decimals}f", kgm3ToKgL())
+
 /** Locale of the app language, so numbers use the matching decimal mark (9 860,1 in French). */
 @Composable
 @ReadOnlyComposable
@@ -115,7 +122,7 @@ private fun Product.label(): String = stringResource(
     }
 )
 
-/** Density range of each fuel in its specification, kg/m³ at 15 °C. Shown as a hint. */
+/** Density range of each fuel in its specification, kg/L at 15 °C. Shown as a hint. */
 @Composable
 @ReadOnlyComposable
 private fun Product.densityHint(): String = when (this) {
@@ -150,7 +157,7 @@ private fun Throwable?.fuelMessage(fallback: Int): String {
     val error = (this as? FuelException)?.error ?: return stringResource(fallback)
     return when (error) {
         FuelError.DensityNotNumber -> stringResource(R.string.err_density_nan)
-        is FuelError.DensityOutOfRange -> stringResource(R.string.err_density_range, error.min.format(0), error.max.format(0))
+        is FuelError.DensityOutOfRange -> stringResource(R.string.err_density_range, error.min.kgm3ToKgL().format(3), error.max.kgm3ToKgL().format(3))
         is FuelError.TempOutOfRange -> stringResource(R.string.err_temp_range, error.min.format(0), error.max.format(0))
         FuelError.VolumeNegative -> stringResource(R.string.err_volume_neg)
         FuelError.MassNegative -> stringResource(R.string.err_mass_neg)
@@ -158,8 +165,9 @@ private fun Throwable?.fuelMessage(fallback: Int): String {
         FuelError.StepNotPositive -> stringResource(R.string.err_step)
         FuelError.StartAboveEnd -> stringResource(R.string.err_start_end)
         FuelError.DensityNotPositive -> stringResource(R.string.err_density_pos)
+        FuelError.ApiNotValid -> stringResource(R.string.err_api)
         is FuelError.Density15OutOfTable -> stringResource(
-            R.string.err_density15_table, error.density15.format(1), error.min.format(0), error.max.format(0),
+            R.string.err_density15_table, error.density15.kgm3ToKgL().format(4), error.min.kgm3ToKgL().format(3), error.max.kgm3ToKgL().format(3),
         )
     }
 }
@@ -170,8 +178,9 @@ fun FuelVolumeScreen() {
     var tab by rememberSaveable { mutableIntStateOf(0) }
     var product by rememberSaveable { mutableStateOf(Product.JET_A1) }
     var unit by rememberSaveable { mutableStateOf(VolumeUnit.LITRE) }
-    var densityText by rememberSaveable { mutableStateOf(Product.JET_A1.defaultDensity.toInt().toString()) }
-    var alphaText by rememberSaveable { mutableStateOf("0.00093") }
+    val locale = appLocale()
+    var densityText by rememberSaveable { mutableStateOf(Product.JET_A1.defaultDensity.kgLText(locale)) }
+    var alphaText by rememberSaveable { mutableStateOf(String.format(locale, "%.5f", 0.00093)) }
     var observedTempText by rememberSaveable { mutableStateOf("") }
     var observedVolumeText by rememberSaveable { mutableStateOf("") }
     var massMode by rememberSaveable { mutableStateOf(false) }
@@ -179,7 +188,7 @@ fun FuelVolumeScreen() {
     var neededMassText by rememberSaveable { mutableStateOf("") }
     var onBoardMassText by rememberSaveable { mutableStateOf("") }
 
-    val density = densityText.toNumberOrNull()
+    val density = densityText.toNumberOrNull()?.kgLToKgm3()
     val alpha = alphaText.toNumberOrNull()
     val observedTemp = observedTempText.toNumberOrNull()
     val bar = barColors()
@@ -234,14 +243,14 @@ fun FuelVolumeScreen() {
                     product = product,
                     onProductChange = { p ->
                         product = p
-                        if (!p.isCustom) densityText = p.defaultDensity.toInt().toString()
+                        if (!p.isCustom) densityText = p.defaultDensity.kgLText(locale)
                     },
                 )
 
                 if (tab == 2) {
                     DensityTo15Tab(
                         onUseDensity = { d ->
-                            densityText = String.format(Locale.ROOT, "%.1f", d)
+                            densityText = d.kgLText(locale, decimals = 4)
                             if (product.isCustom) product = Product.OTHER
                             tab = 0
                         },
@@ -515,7 +524,7 @@ private fun MassToVolumeTab(
                     ResultLine(stringResource(R.string.line_uplift_mass), "${r.massKg.format(0)} kg  /  ${r.massLb.format(0)} lb")
                     ResultLine(stringResource(R.string.line_volume15), "${r.volumeAt15.format(0)} ${unit.symbol()}")
                     ResultLine(stringResource(R.string.line_vcf), r.vcf.format(5))
-                    ResultLine(stringResource(R.string.line_density_obs), "${r.densityAtTemp.format(1)} kg/m³")
+                    ResultLine(stringResource(R.string.line_density_obs), "${r.densityAtTemp.kgm3ToKgL().format(4)} kg/L")
                     ResultLine(stringResource(R.string.line_table), r.group.label())
                 }
             }
@@ -523,13 +532,79 @@ private fun MassToVolumeTab(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DensityTo15Tab(onUseDensity: (Double) -> Unit) {
+    var apiMode by rememberSaveable { mutableStateOf(false) }
+    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        listOf(false to R.string.density_mode_measured, true to R.string.density_mode_api).forEachIndexed { index, (mode, label) ->
+            SegmentedButton(
+                selected = apiMode == mode,
+                onClick = { apiMode = mode },
+                shape = SegmentedButtonDefaults.itemShape(index = index, count = 2),
+                label = { Text(stringResource(label)) },
+            )
+        }
+    }
+    if (apiMode) ApiGravitySection(onUseDensity) else MeasuredDensitySection(onUseDensity)
+}
+
+/** °API (at 60 °F) to density in kg/L at 15 °C. */
+@Composable
+private fun ApiGravitySection(onUseDensity: (Double) -> Unit) {
+    var apiText by rememberSaveable { mutableStateOf("") }
+    val api = apiText.toNumberOrNull()
+    val outcome: Result<ApiGravityResult>? = remember(api) {
+        if (api == null) null else runCatching { FuelCalculator.densityFromApiGravity(api) }
+    }
+
+    NumberField(
+        value = apiText,
+        onValueChange = { apiText = it },
+        label = stringResource(R.string.label_api),
+        supporting = stringResource(R.string.support_api),
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+    ) {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            when {
+                outcome == null -> Text(stringResource(R.string.prompt_api), style = MaterialTheme.typography.bodyMedium)
+                outcome.isFailure -> Text(
+                    text = outcome.exceptionOrNull().fuelMessage(R.string.err_convert),
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                else -> {
+                    val r = outcome.getOrThrow()
+                    Text(stringResource(R.string.result_density15), style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        text = fmt("%.4f kg/L", r.at15.density15KgPerLitre),
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    HorizontalDivider()
+                    ResultLine(stringResource(R.string.line_sg), r.relativeDensity60F.format(4))
+                    ResultLine(stringResource(R.string.line_density_60f), "${r.density60F.kgm3ToKgL().format(4)} kg/L")
+                    ResultLine(stringResource(R.string.line_table), r.at15.group.label())
+                    Button(onClick = { onUseDensity(r.at15.density15) }, modifier = Modifier.fillMaxWidth()) {
+                        Text(stringResource(R.string.btn_use_density))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MeasuredDensitySection(onUseDensity: (Double) -> Unit) {
     var measuredDensityText by rememberSaveable { mutableStateOf("") }
     var measuredTempText by rememberSaveable { mutableStateOf("") }
     var glassHydrometer by rememberSaveable { mutableStateOf(false) }
 
-    val measuredDensity = measuredDensityText.toNumberOrNull()
+    val measuredDensity = measuredDensityText.toNumberOrNull()?.kgLToKgm3()
     val measuredTemp = measuredTempText.toNumberOrNull()
     val allFilled = measuredDensity != null && measuredTemp != null
 
@@ -589,11 +664,10 @@ private fun DensityTo15Tab(onUseDensity: (Double) -> Unit) {
                     val r = outcome.getOrThrow()
                     Text(stringResource(R.string.result_density15), style = MaterialTheme.typography.labelLarge)
                     Text(
-                        text = "${r.density15.format(1)} kg/m³",
+                        text = fmt("%.4f kg/L", r.density15KgPerLitre),
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold,
                     )
-                    Text(fmt("%.4f kg/L", r.density15KgPerLitre), style = MaterialTheme.typography.titleMedium)
                     HorizontalDivider()
                     ResultLine(stringResource(R.string.line_vcf), r.vcf.format(5))
                     r.hydrometerCorrection?.let { ResultLine(stringResource(R.string.line_hyc), it.format(6)) }
@@ -630,7 +704,7 @@ private fun DensityChartTab(product: Product, density: Double?, highlightTempC: 
                 else -> {
                     val rows = chart.getOrThrow()
                     Text(
-                        stringResource(R.string.chart_title, product.label(), density!!.format(1)),
+                        stringResource(R.string.chart_title, product.label(), density!!.kgm3ToKgL().format(4)),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -640,12 +714,11 @@ private fun DensityChartTab(product: Product, density: Double?, highlightTempC: 
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     HorizontalDivider()
-                    ChartRow("°C", "kg/m³", "kg/L", "VCF", header = true, highlighted = false)
+                    ChartRow("°C", "kg/L", "VCF", header = true, highlighted = false)
                     val nearest = highlightTempC?.let { t -> rows.minByOrNull { abs(it.tempC - t) } }
                     rows.forEach { p ->
                         ChartRow(
                             fmt("%+.0f", p.tempC).replace("+0", "0"),
-                            p.density.format(1),
                             fmt("%.4f", p.densityKgPerLitre),
                             fmt("%.5f", p.vcf),
                             header = false,
@@ -666,7 +739,7 @@ private fun DensityChartTab(product: Product, density: Double?, highlightTempC: 
 }
 
 @Composable
-private fun ChartRow(temp: String, density: String, kgPerLitre: String, vcf: String, header: Boolean, highlighted: Boolean) {
+private fun ChartRow(temp: String, kgPerLitre: String, vcf: String, header: Boolean, highlighted: Boolean) {
     val weight = if (header || highlighted) FontWeight.Bold else FontWeight.Normal
     val style = if (header) MaterialTheme.typography.labelLarge else MaterialTheme.typography.bodyMedium
     val background = if (highlighted) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
@@ -678,7 +751,6 @@ private fun ChartRow(temp: String, density: String, kgPerLitre: String, vcf: Str
             .padding(horizontal = 6.dp, vertical = 4.dp),
     ) {
         Text(temp, style = style, fontWeight = weight, modifier = Modifier.weight(0.8f), textAlign = TextAlign.End)
-        Text(density, style = style, fontWeight = weight, modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
         Text(kgPerLitre, style = style, fontWeight = weight, modifier = Modifier.weight(1.2f), textAlign = TextAlign.End)
         Text(vcf, style = style, fontWeight = weight, modifier = Modifier.weight(1.3f), textAlign = TextAlign.End)
     }
@@ -740,7 +812,7 @@ private fun ResultCard(outcome: Result<FuelResult>?, allFilled: Boolean, unit: V
                         ResultLine(stringResource(R.string.line_mass), "${massKg.format(0)} kg  /  ${massLb.format(0)} lb")
                     }
                     r.densityAtObserved?.let { d ->
-                        ResultLine(stringResource(R.string.line_density_obs), "${d.format(1)} kg/m³")
+                        ResultLine(stringResource(R.string.line_density_obs), "${d.kgm3ToKgL().format(4)} kg/L")
                     }
                     ResultLine(stringResource(R.string.line_alpha), fmt("%.6f /°C", r.alpha15))
                     ResultLine(stringResource(R.string.line_table), r.group.label())

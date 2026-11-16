@@ -1,4 +1,4 @@
-# Uplift 15
+# Avjet fuel conversion tool
 
 Android app for aviation fuel. You type the uplifted volume and the fuel temperature from the
 meter. The app corrects the volume to 15 °C, the standard reference temperature. It also shows the
@@ -95,8 +95,20 @@ git tag v1.1.0
 git push origin v1.1.0
 ```
 
-The pipeline then makes a GitHub Release with `uplift-15-1.1.0.apk`.
+The pipeline then makes a GitHub Release with `avjet-fuel-1.1.0.apk`.
 
 The release key is not in the repo. It is in the repository secrets (`KEYSTORE_BASE64`,
 `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Keep a backup of the key: without it,
 installed apps cannot be updated.
+
+## Licence
+
+Copyright (C) 2026 TheMonkeyz
+
+This program is free software: you can redistribute it and/or modify it under the terms of the
+GNU General Public License as published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+[LICENSE](LICENSE) file for the full text.

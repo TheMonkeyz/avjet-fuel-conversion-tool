@@ -1,0 +1,517 @@
+/* Colours from app/src/main/java/com/fuelvolume/app/Theme.kt.
+   Light blue is only a fill. Text uses near-black or dark blue: every text/background pair is at least 7:1. */
+:root {
+  color-scheme: light dark;
+
+  --primary: #00507d;          /* 8.6:1 on white */
+  --on-primary: #ffffff;
+  --primary-container: #cdebff;
+  --on-primary-container: #001f33; /* 13.6:1 */
+  --secondary-container: #8fd0ff;
+  --on-secondary-container: #001f33; /* 10.2:1 */
+  --background: #ffffff;
+  --on-background: #0a1620;    /* 18.3:1 */
+  --surface: #ffffff;
+  --on-surface: #0a1620;
+  --on-surface-variant: #26323d; /* 13.1:1 */
+  --surface-container-highest: #eaf4fb;
+  --outline: #3b4a57;          /* 9.1:1 */
+  --outline-variant: #8a9ba8;
+  --error: #9a0019;            /* 8.8:1 on white, 7.1:1 on the pale blue cards */
+
+  --bar: #8fd0ff;
+  --bar-content: #001f33;
+  --bar-content-dim: #14303f;
+  --bar-indicator: #00507d;
+
+  --radius: 12px;
+  --gap: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #8fd0ff;
+    --on-primary: #001f33;
+    --primary-container: #123447;
+    --on-primary-container: #ffffff;
+    --secondary-container: #1e4a63;
+    --on-secondary-container: #ffffff;
+    --background: #0b1218;
+    --on-background: #ffffff;
+    --surface: #0b1218;
+    --on-surface: #ffffff;
+    --on-surface-variant: #d0dce6;
+    --surface-container-highest: #1b2731;
+    --outline: #a9b8c4;
+    --outline-variant: #4a5a66;
+    --error: #ffb4ab;
+
+    --bar: #123447;
+    --bar-content: #ffffff;
+    --bar-content-dim: #d0dce6;
+    --bar-indicator: #8fd0ff;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--on-background);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  -webkit-tap-highlight-color: transparent;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ---------- top bar and tabs ---------- */
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bar);
+  color: var(--bar-content);
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 8px 8px 4px 16px;
+  min-height: 56px;
+}
+
+.bar h1 {
+  flex: 1;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.lang-btn {
+  flex: none;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 16px;
+  border: 1.5px solid var(--bar-content);
+  border-radius: 22px;
+  background: transparent;
+  color: var(--bar-content);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lang-btn:focus-visible {
+  outline-color: var(--bar-content);
+}
+
+.tabs {
+  display: flex;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.tabs [role="tab"] {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 48px;
+  padding: 8px 4px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--bar-content-dim);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tabs [role="tab"][aria-selected="true"] {
+  color: var(--bar-content);
+  font-weight: 700;
+}
+.tabs [role="tab"][aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 64px;
+  height: 4px;
+  margin-left: -32px;
+  border-radius: 4px 4px 0 0;
+  background: var(--bar-indicator);
+}
+.tabs [role="tab"]:focus-visible {
+  outline-color: var(--bar-content);
+  outline-offset: -3px;
+}
+
+/* ---------- content ---------- */
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px calc(16px + env(safe-area-inset-right)) calc(28px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+}
+main:focus {
+  outline: none;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.row {
+  display: flex;
+  gap: var(--gap);
+}
+.row > .field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* ---------- fields ---------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.field > label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--on-surface);
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  min-height: 52px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--outline);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--on-surface);
+  font: inherit;
+  font-size: 1.0625rem; /* 17px: above 16px so iOS Safari does not zoom */
+}
+input[type="text"]:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary);
+  outline: none;
+}
+input[type="text"]:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+input[aria-invalid="true"] {
+  border-color: var(--error);
+  box-shadow: 0 0 0 1px var(--error);
+}
+
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 44px;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+.support {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+}
+.error-text {
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* ---------- segmented buttons (radio groups) ---------- */
+
+.seg {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.seg label {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  min-width: 0;
+}
+.seg input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.seg span {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--outline);
+  background: var(--surface);
+  color: var(--on-surface);
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+}
+.seg label + label span {
+  border-left-width: 0;
+}
+.seg label:first-of-type span {
+  border-radius: 24px 0 0 24px;
+}
+.seg label:last-of-type span {
+  border-radius: 0 24px 24px 0;
+}
+.seg input:checked + span {
+  background: var(--secondary-container);
+  color: var(--on-secondary-container);
+  font-weight: 700;
+}
+.seg input:checked + span::before {
+  content: "✓\00a0";
+}
+.seg input:focus-visible + span {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- switch ---------- */
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+}
+.switch-title {
+  display: block;
+  font-size: 1rem;
+  color: var(--on-surface);
+  cursor: pointer;
+}
+.switch {
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  width: 56px;
+  height: 32px;
+  margin: 6px 0; /* 44px touch height */
+  border: 2px solid var(--outline);
+  border-radius: 16px;
+  background: var(--surface-container-highest);
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.switch::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 6px;
+  width: 16px;
+  height: 16px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: var(--outline);
+  transition: transform 0.15s, width 0.15s, height 0.15s;
+}
+.switch:checked {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+.switch:checked::before {
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  transform: translateX(20px);
+  background: var(--on-primary);
+}
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .switch::before {
+    transition: none;
+  }
+}
+
+/* ---------- cards and results ---------- */
+
+.card {
+  margin: 0;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.card p {
+  margin: 0;
+}
+.card hr {
+  width: 100%;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--outline-variant);
+}
+.msg.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+.result-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.result-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.95rem;
+}
+.line strong {
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.error {
+  color: var(--error);
+  font-weight: 600;
+}
+
+button.primary {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 4px;
+  padding: 10px 20px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ---------- density chart ---------- */
+
+.chart-card {
+  background: var(--surface-container-highest);
+  color: var(--on-surface);
+}
+.chart-card .error {
+  color: var(--error);
+}
+.chart-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+table.chart {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 2px;
+  font-variant-numeric: tabular-nums;
+}
+table.chart th,
+table.chart td {
+  padding: 4px 6px;
+  text-align: right;
+}
+table.chart thead th {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+table.chart tbody th {
+  font-weight: 400;
+}
+table.chart tbody tr {
+  background: var(--surface);
+}
+table.chart tbody tr > :first-child {
+  border-radius: 6px 0 0 6px;
+}
+table.chart tbody tr > :last-child {
+  border-radius: 0 6px 6px 0;
+}
+table.chart tr.marked {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+table.chart tr.marked th,
+table.chart tr.marked td {
+  font-weight: 700;
+}
+
+.disclaimer {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+}
+
+.disclaimer a {
+  color: inherit;
+  text-decoration: underline;
+}

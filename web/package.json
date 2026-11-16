@@ -1,0 +1,10 @@
+{
+  "name": "avjet-fuel-web",
+  "private": true,
+  "description": "PWA of the Avjet fuel conversion tool. No dependencies, no build step.",
+  "type": "module",
+  "main": "calc.test.mjs",
+  "scripts": {
+    "test": "node --test"
+  }
+}
