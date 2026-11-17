@@ -8,8 +8,7 @@ The client wants the app on Google Play and on the Apple App Store. Google Play 
 change first: since 31 Aug 2026 it accepts only apps that target API 36 (Android 16), and this app
 targets API 35. The Apple App Store needs a new iOS app, because there is none today.
 
-This file records the planned changes to the code and the build. Store accounts, fees and the
-client's decisions are in the client guide (kept outside this repo).
+This file records the planned changes to the code and the build.
 
 ## Planned change 1: target API 36 (needed for Google Play)
 
