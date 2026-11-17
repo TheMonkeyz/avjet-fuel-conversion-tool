@@ -3,7 +3,7 @@
 Each version is a git tag and a GitHub Release with its signed Android APK. The web app is
 published from `main`. The method and its verification are in [docs/VALIDATION.md](docs/VALIDATION.md).
 
-## Unreleased (1.2.0)
+## 1.2.0 – 2026-11-16
 
 - **Calculation changed to ASTM D1250-08 / API MPMS Chapter 11.1-2004** (generalized refined
   products, 15 °C base), replacing the 1980 equations. The group is now chosen from the density at
