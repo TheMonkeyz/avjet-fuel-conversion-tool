@@ -1,7 +1,7 @@
 # Plan: publishing on Google Play and the Apple App Store
 
-2026-11-16 · Status: draft, waiting for decisions · Planned change 1 is built but not checked on a
-device; nothing else in this plan is done yet.
+2026-11-16 · Status: draft, waiting for decisions · Planned change 1 is done and checked on Android
+16 emulators (not on a real Android 16 phone); nothing else in this plan is done yet.
 
 ## Summary
 
@@ -14,7 +14,8 @@ client's decisions are in the client guide (kept outside this repo).
 
 ## Planned change 1: target API 36 (needed for Google Play)
 
-**Status, 2026-11-16: build change done, device check not done.** On branch `build/target-api-36`:
+**Status, 2026-11-16: done. Checked on Android 16 emulators, not on a real Android 16 phone.** On
+branch `build/target-api-36`:
 
 - Versions used: Android Gradle Plugin 8.13.2 (newest 8.13 patch; 8.13 supports up to API 36.1,
   [release notes](https://developer.android.com/build/releases/past-releases/agp-8-13-0-release-notes)),
@@ -26,10 +27,36 @@ client's decisions are in the client guide (kept outside this repo).
   finding about API 36. The merged manifest has `targetSdkVersion` 36 and the same permission list
   as before (only `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, added by AndroidX core, also present
   at API 35).
-- **Not checked:** none of the device checks below (edge-to-edge, language switch, wide window,
-  back gesture, test case). No Android 16 emulator is installed on the PC. The phone (Pixel 8 Pro)
-  runs Android 17 (API 37) and holds the release-signed build, so the new build was not installed
-  on it.
+- Device checks, on the debug build (`targetSdk` 36), on two emulators with the Android 16 (API 36)
+  "Google APIs x86_64" image revision 7: a phone ("Medium Phone" profile, 1080 × 2400) and a tablet
+  ("Pixel Tablet" profile, 2560 × 1600). What was seen on the screen:
+
+  | Check | Result |
+  | --- | --- |
+  | Test case, English, phone: Volume tab, volume → mass | 9,860.0 L at 15 °C, VCF 0.98600, 7,888 kg, α60 0.0005166 /°F, Jet fuels |
+  | Test case, English, phone: mass → volume, 7,888 kg at 30 °C | 10,000 L to order, 9,860 L at 15 °C, VCF 0.98600 |
+  | Fuel menu, English | Opens, lists the five fuels; picking Avgas 100LL sets 0.720 kg/L, picking Jet A-1 again works |
+  | Fuel menu, French | Opens, lists the five fuels in French |
+  | Density chart tab, English and French | +30 °C row: 0.7888 kg/L, VCF 0.98600 (French: 0,7888 and 0,98600) |
+  | Density 15 °C tab, measured density 0.7888 kg/L at 30 °C, English and French | 0.8000 kg/L, VCF 0.98600 |
+  | Density 15 °C tab, 45 °API, English and French | 0.8013 kg/L, relative density 0.8017 |
+  | Test case, French, phone, both modes | 9 860,0 L, VCF 0,98600; 10 000 L to order |
+  | Language button, then close and reopen the app | French stays French, English stays English |
+  | Status bar and navigation bar: gesture navigation on all three tabs in portrait and the Volume tab in landscape; 3-button navigation on the Density chart tab in portrait and the Volume tab in landscape | No text or control under them |
+  | Back gesture from each of the three tabs; back button (3-button navigation) from the Density chart tab | The app closes to the home screen; the predictive back-to-home animation shows (seen mid-gesture on the Density 15 °C tab) |
+  | Tablet, landscape (wide window), test case | Layout usable, same result |
+  | Merged manifest | `targetSdkVersion` 36 |
+
+- Two problems found. Both also happen with the old build (`targetSdk` 35) on the same Android 16
+  emulator, so API 36 did not cause them. They are not fixed in this change:
+  - **Camera cutout in landscape.** With an emulated "tall" cutout, in landscape the left edge of
+    the content (for example the "Fuel" label and "Jet A-1") is under the cutout. In portrait the
+    content is correctly below the cutout. The real phones have smaller cutouts; not checked on one.
+  - **Keyboard hides the result.** With the keyboard open, the screen scrolls only far enough to
+    show the first result line (volume at 15 °C). The VCF and mass lines stay under the keyboard
+    until the keyboard is closed.
+- **Not checked:** a real Android 16 phone; split screen. The owner's phone (Pixel 8 Pro) runs
+  Android 17 (API 37) and holds the release-signed build, so the new build was not installed on it.
 
 Why: Google Play refuses new apps and updates that target less than API 36 since 31 Aug 2026
 ([source](https://developer.android.com/google/play/requirements/target-sdk)). This also applies to

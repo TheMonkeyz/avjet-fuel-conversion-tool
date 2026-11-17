@@ -7,8 +7,8 @@ published from `main`. The method and its verification are in [docs/VALIDATION.m
 
 - The Android app now targets **Android 16 (API 36)**, as Google Play requires since 31 Aug 2026
   (`compileSdk` and `targetSdk` 35 → 36). Build tools: Android Gradle Plugin 8.7.3 → 8.13.2, Gradle
-  8.10.2 → 8.13. No library or source code change. **No change to the calculation.** Not yet
-  checked on an Android 16 device.
+  8.10.2 → 8.13. No library or source code change. **No change to the calculation.** Checked on
+  Android 16 emulators (phone and tablet) in English and French; not yet on a real Android 16 phone.
 
 ## 1.2.1 – 2026-11-16
 

@@ -239,6 +239,7 @@ None of these numbers come from the official standard. See open item O1.
 | 2026-11-16 | Android 1.2.0 on a phone: Jet A-1 0.800 kg/L, 10 000 L at 30 °C | VCF 0.98600, 9 860.0 L at 15 °C, 7 888 kg, α60 0.0005166 /°F, Jet fuels. Same as the web code. |
 | 2026-11-16 | Android 1.1.0 on a phone: 45 °API; "use this density" button (1980 method) | 0.8013 kg/L; value copied to the Volume tab |
 | 2026-11-16 | Web 1.1.0 in a desktop browser (Edge), French and English | Same results as Android; errors shown |
+| 2026-11-16 | Android debug build with `targetSdk` 36 (not released) on an Android 16 (API 36) emulator, phone and tablet, English and French: Jet A-1 0.800 kg/L, 10 000 L at 30 °C | VCF 0.98600, 9 860.0 L at 15 °C, 7 888 kg, α60 0.0005166 /°F, Jet fuels; French shows 0,98600 and 9 860,0 L. 45 °API gives 0.8013 kg/L. Same as the phone results above. |
 
 Not yet checked: the web app on a real iPhone.
 
