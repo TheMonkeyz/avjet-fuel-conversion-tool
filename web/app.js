@@ -260,7 +260,8 @@ function renderCalc() {
         html += line(t('line_mass'), `${fmtG(r.massKg, 0)} kg  /  ${fmtG(r.massLb, 0)} lb`);
       }
       if (r.densityAtObserved !== null) html += line(t('line_density_obs'), `${fmtG(r.densityAtObserved / 1000, 4)} kg/L`);
-      html += line(t('line_alpha'), `${fmtP(r.alpha15, 6)} /°C`);
+      if (r.alpha60 !== null) html += line(t('line_alpha'), `${fmtP(r.alpha60, 7)} /°F`);
+      if (r.customAlpha !== null) html += line(t('line_alpha_custom'), `${fmtP(r.customAlpha, 6)} /°C`);
       html += line(t('line_table'), groupLabel(r.group));
     }
   }
@@ -356,7 +357,7 @@ function renderMeasured() {
       html = headline(t('result_density15'), `${fmtP(r.density15KgPerLitre, 4)} kg/L`);
       html += line(t('line_vcf'), fmtG(r.vcf, 5));
       if (r.hydrometerCorrection !== null) html += line(t('line_hyc'), fmtG(r.hydrometerCorrection, 6));
-      html += line(t('line_alpha'), `${fmtP(r.alpha15, 6)} /°C`);
+      html += line(t('line_alpha'), `${fmtP(r.alpha60, 7)} /°F`);
       html += line(t('line_table'), groupLabel(r.group));
       html += useButton(r.density15);
     }

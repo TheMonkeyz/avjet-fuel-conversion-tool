@@ -1,7 +1,12 @@
 // Port of core/src/test/kotlin/com/fuelvolume/core/FuelCalculatorTest.kt, same values and tolerances.
 // Run with: node --test web/
+//
+// IMPORTANT: none of these values come from the official standard yet. They check the internal
+// consistency of the ASTM D1250-08 / API MPMS 11.1-2004 method and that it stays close to the 1980
+// tables. Official test points must still be added (docs/VALIDATION.md, open item O1).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import {
   Product,
   VolumeUnit,
@@ -12,9 +17,17 @@ import {
   KG_PER_LB,
   MIN_TEMP_C,
   MAX_TEMP_C,
+  MIN_DENSITY,
+  MAX_DENSITY,
   WATER_DENSITY_60F,
-  thermalExpansionCoefficient,
+  API_REF_TEMP_C,
+  DELTA_60,
+  BASE_TEMP_F_IPTS68,
+  toIpts68F,
+  round5,
+  coefficients,
   volumeCorrectionFactor,
+  customVolumeCorrectionFactor,
   correct,
   volumeForMass,
   densityChart,
@@ -25,10 +38,11 @@ import {
 } from './calc.js';
 
 function assertClose(expected, actual, tolerance, message = '') {
-  assert.ok(Math.abs(expected - actual) <= tolerance, `${message} expected ${expected} but was ${actual} (±${tolerance})`);
+  assert.ok(
+    Math.abs(expected - actual) <= tolerance,
+    `${message} expected ${expected} but was ${actual} (±${tolerance})`,
+  );
 }
-/** Kotlin assertEquals(expected, actual, absoluteTolerance) */
-const assertEq = assertClose;
 
 function assertFuelError(fn, code) {
   let caught;
@@ -42,78 +56,94 @@ function assertFuelError(fn, code) {
   return caught;
 }
 
+// --- Constants and building blocks ---------------------------------------------------------
+
+test('60 F on the IPTS-68 scale matches the constant of the standard', () => {
+  assertClose(BASE_TEMP_F_IPTS68, toIpts68F(API_REF_TEMP_C), 2e-7);
+  assertClose(DELTA_60, 2 * (BASE_TEMP_F_IPTS68 - 60.0), 1e-7);
+});
+
+test('scale change is zero at 0 C', () => {
+  assertClose(32.0, toIpts68F(0.0), 1e-12);
+});
+
 test('vcf is exactly one at 15 degrees', () => {
-  const { alpha15 } = thermalExpansionCoefficient(800.0);
-  assertEq(1.0, volumeCorrectionFactor(alpha15, 15.0), 1e-12);
+  for (const d of [650.0, 720.0, 780.0, 800.0, 840.0, 1000.0]) {
+    assertClose(1.0, volumeCorrectionFactor(d, 15.0), 1e-12, `density ${d}`);
+  }
 });
 
-test('jet A-1 at 800 kg per m3 and 30 C matches Table 54B', () => {
-  const { group, alpha15 } = thermalExpansionCoefficient(800.0);
-  assert.equal(group, FormulaGroup.JET);
-  assertClose(0.9861, volumeCorrectionFactor(alpha15, 30.0), 0.0003);
+test('vcf is rounded to 5 decimals', () => {
+  const vcf = volumeCorrectionFactor(800.0, 30.0);
+  assert.equal(vcf, round5(vcf));
 });
 
-test('jet fuel at 800 kg per m3 and 0 C expands the volume at 15', () => {
-  const { alpha15 } = thermalExpansionCoefficient(800.0);
-  const vcf = volumeCorrectionFactor(alpha15, 0.0);
-  assert.ok(vcf > 1.0);
-  assertClose(1.014, vcf, 0.0005);
+test('density limits at 15 C come from the 60 F limits', () => {
+  assertClose(611.16, MIN_DENSITY, 0.01);
+  assertClose(1163.86, MAX_DENSITY, 0.01);
 });
 
-test('avgas at 720 kg per m3 uses the gasoline group', () => {
-  const { group, alpha15 } = thermalExpansionCoefficient(720.0);
-  assert.equal(group, FormulaGroup.GASOLINE);
-  assertClose(0.9873, volumeCorrectionFactor(alpha15, 25.0), 0.0003);
-});
+// --- Groups --------------------------------------------------------------------------------
 
-test('gasoline at 750 kg per m3 and 25 C matches Table 54B', () => {
-  const { alpha15 } = thermalExpansionCoefficient(750.0);
-  assertClose(0.988, volumeCorrectionFactor(alpha15, 25.0), 0.0003);
-});
-
-test('diesel at 840 kg per m3 and 30 C matches Table 54B', () => {
-  const { group, alpha15 } = thermalExpansionCoefficient(840.0);
-  assert.equal(group, FormulaGroup.FUEL_OIL);
-  assertClose(0.9873, volumeCorrectionFactor(alpha15, 30.0), 0.0003);
+test('groups are chosen from the density at 60 F', () => {
+  assert.equal(coefficients(720.0).group, FormulaGroup.GASOLINE);
+  assert.equal(coefficients(780.0).group, FormulaGroup.TRANSITION);
+  assert.equal(coefficients(800.0).group, FormulaGroup.JET);
+  assert.equal(coefficients(845.0).group, FormulaGroup.FUEL_OIL);
+  const c = coefficients(800.0);
+  assert.ok(c.density60 < 800.0);
+  assertClose(800.0, c.density60, 0.6);
 });
 
 test('alpha is continuous across group boundaries', () => {
-  const gasolineEdge = thermalExpansionCoefficient(770.351).alpha15;
-  const transitionLow = thermalExpansionCoefficient(770.352).alpha15;
-  assertClose(gasolineEdge, transitionLow, 1e-6);
-  const transitionHigh = thermalExpansionCoefficient(787.5252).alpha15;
-  const jetEdge = thermalExpansionCoefficient(787.5253).alpha15;
-  assertClose(transitionHigh, jetEdge, 1e-6);
+  const alphaAt60 = (rho60) => {
+    let rho15 = rho60;
+    for (let i = 0; i < 50; i++) rho15 += rho60 - coefficients(rho15).density60;
+    return coefficients(rho15).alpha60;
+  };
+  assertClose(alphaAt60(770.3519), alphaAt60(770.3521), 2e-8);
+  assertClose(alphaAt60(787.5194), alphaAt60(787.5196), 2e-8);
+  assertClose(alphaAt60(838.3126), alphaAt60(838.3128), 2e-8);
 });
 
+// --- Close to the 1980 tables --------------------------------------------------------------
+
+test('stays within 0_0002 of the 1980 Table 54B equations', () => {
+  const cases = [
+    [800.0, 30.0, 0.986009], // 1980 equations, jet
+    [800.0, 0.0, 1.013875],
+    [720.0, 25.0, 0.987175], // gasoline
+    [750.0, 25.0, 0.987949],
+    [840.0, 30.0, 0.987296], // fuel oil
+  ];
+  for (const [d, t, vcf1980] of cases) {
+    assertClose(vcf1980, volumeCorrectionFactor(d, t), 0.0002, `ρ15 ${d} at ${t} °C`);
+  }
+});
+
+// --- Volume and mass -----------------------------------------------------------------------
+
 test('volume at 15 and at a target temperature', () => {
-  const r = correct({ product: Product.JET_A1, density15: 800.0, observedTempC: 30.0, observedVolume: 10_000.0, targetTempC: 15.0 });
-  assertClose(9861.0, r.volumeAt15, 3.0);
-  assertEq(r.volumeAt15, r.volumeAtTarget, 1e-9);
-  assertEq(1.0, r.vcfTarget, 1e-12);
-  assertClose(800.0 * r.vcfObserved, r.densityAtObserved, 1e-9);
+  const r = correct({ product: Product.JET_A1, density15: 800.0, observedTempC: 30.0, observedVolume: 10000.0, targetTempC: 15.0 });
+  assertClose(9860.0, r.volumeAt15, 3.0);
+  assertClose(r.volumeAt15, r.volumeAtTarget, 1e-9);
+  assertClose(1.0, r.vcfTarget, 1e-12);
+  assertClose(10000.0 * r.vcfObserved, r.volumeAt15, 1e-9);
+  assert.ok(r.alpha60 !== null && r.customAlpha === null);
 });
 
 test('mass in kg and lb from litres', () => {
-  const r = correct({ product: Product.JET_A1, density15: 800.0, observedTempC: 30.0, observedVolume: 10_000.0 });
-  assertClose(7889.0, r.massKg, 3.0);
+  const r = correct({ product: Product.JET_A1, density15: 800.0, observedTempC: 30.0, observedVolume: 10000.0 });
+  assertClose(r.volumeAt15 * 0.8, r.massKg, 1e-9);
   assertClose(r.massKg * LB_PER_KG, r.massLb, 1e-9);
 });
 
 test('mass from US gallons', () => {
   const r = correct({
-    product: Product.JET_A1, density15: 800.0, observedTempC: 15.0, observedVolume: 1_000.0, volumeUnit: VolumeUnit.US_GALLON,
+    product: Product.JET_A1, density15: 800.0, observedTempC: 15.0, observedVolume: 1000.0, volumeUnit: VolumeUnit.US_GALLON,
   });
-  assertClose(3028.3, r.massKg, 0.1);
-  assertEq(1_000.0, r.volumeAt15, 1e-9);
-});
-
-test('mass is the same whatever the temperature', () => {
-  const warm = correct({ product: Product.JET_A1, density15: 800.0, observedTempC: 35.0, observedVolume: 1000.0 });
-  const coldVolume = warm.volumeAt15 / volumeCorrectionFactor(warm.alpha15, -20.0);
-  const cold = correct({ product: Product.JET_A1, density15: 800.0, observedTempC: -20.0, observedVolume: coldVolume });
-  assert.ok(coldVolume < 1000.0);
-  assertClose(warm.massKg, cold.massKg, 1e-6);
+  assertClose(3028.33, r.massKg, 0.01);
+  assertClose(1000.0, r.volumeAt15, 1e-9);
 });
 
 test('round trip observed to target and back', () => {
@@ -129,123 +159,111 @@ test('custom coefficient skips density and mass', () => {
   assert.equal(r.group, FormulaGroup.CUSTOM);
   assert.equal(r.densityAtObserved, null);
   assert.equal(r.massKg, null);
-  assert.equal(r.massLb, null);
-  assert.ok(r.volumeAt15 < 100.0);
+  assert.equal(r.alpha60, null);
+  assert.equal(r.customAlpha, 0.001);
+  // exp(−0.001·10·(1 + 0.8·0.001·10)) = exp(−0.01008) = 0.98997
+  assertClose(0.98997, r.vcfObserved, 1e-12);
 });
 
 test('rejects densities outside the table', () => {
-  assertFuelError(() => thermalExpansionCoefficient(600.0), ErrorCode.DENSITY_OUT_OF_RANGE);
-  assertFuelError(() => thermalExpansionCoefficient(1100.0), ErrorCode.DENSITY_OUT_OF_RANGE);
-  assertFuelError(() => thermalExpansionCoefficient(Number.NaN), ErrorCode.DENSITY_NOT_NUMBER);
+  assertFuelError(() => coefficients(600.0), ErrorCode.DENSITY_OUT_OF_RANGE);
+  assertFuelError(() => coefficients(1200.0), ErrorCode.DENSITY_OUT_OF_RANGE);
+  assertFuelError(() => coefficients(NaN), ErrorCode.DENSITY_NOT_NUMBER);
 });
 
 test('rejects temperatures outside the table', () => {
-  assertFuelError(() => volumeCorrectionFactor(0.001, 200.0), ErrorCode.TEMP_OUT_OF_RANGE);
-  assertFuelError(() => volumeCorrectionFactor(0.001, -60.0), ErrorCode.TEMP_OUT_OF_RANGE);
+  assertFuelError(() => volumeCorrectionFactor(800.0, 200.0), ErrorCode.TEMP_OUT_OF_RANGE);
+  assertFuelError(() => volumeCorrectionFactor(800.0, -60.0), ErrorCode.TEMP_OUT_OF_RANGE);
+  assertFuelError(() => customVolumeCorrectionFactor(0.001, 151.0), ErrorCode.TEMP_OUT_OF_RANGE);
 });
+
+// --- Density chart -------------------------------------------------------------------------
 
 test('density chart has one row per 5 degrees and 15 C is the input density', () => {
   const chart = densityChart(800.0);
   assert.equal(chart.length, 19);
   assert.equal(chart[0].tempC, -40.0);
-  assert.equal(chart.at(-1).tempC, 50.0);
+  assert.equal(chart[chart.length - 1].tempC, 50.0);
   const at15 = chart.find((p) => p.tempC === 15.0);
-  assertEq(800.0, at15.density, 1e-9);
-  assertEq(0.8, at15.densityKgPerLitre, 1e-9);
-  assertEq(1.0, at15.vcf, 1e-12);
+  assertClose(800.0, at15.density, 1e-9);
+  assertClose(1.0, at15.vcf, 1e-12);
 });
 
 test('density chart gets lighter as the fuel gets warmer', () => {
   const chart = densityChart(720.0);
-  for (let i = 0; i + 1 < chart.length; i++) {
-    const cold = chart[i];
-    const warm = chart[i + 1];
-    assert.ok(cold.density > warm.density, `density at ${cold.tempC} should be above ${warm.tempC}`);
-  }
+  for (let i = 1; i < chart.length; i++) assert.ok(chart[i - 1].density > chart[i].density);
   assertClose(701.0, chart.find((p) => p.tempC === 35.0).density, 1.0);
 });
 
 test('density chart rejects a bad step or range', () => {
-  assertFuelError(() => densityChart(800.0, -40.0, 50.0, 0.0), ErrorCode.STEP_NOT_POSITIVE);
+  assertFuelError(() => densityChart(800.0, -40, 50, 0.0), ErrorCode.STEP_NOT_POSITIVE);
   assertFuelError(() => densityChart(800.0, 20.0, 10.0), ErrorCode.START_ABOVE_END);
 });
 
+// --- Density at 15 °C ----------------------------------------------------------------------
+
 test('density at 15 is the input when measured at 15', () => {
   const r = densityAt15(800.0, 15.0);
-  assertEq(800.0, r.density15, 1e-9);
-  assertEq(1.0, r.vcf, 1e-12);
+  assertClose(800.0, r.density15, 1e-6);
+  assertClose(1.0, r.vcf, 1e-12);
   assert.equal(r.hydrometerCorrection, null);
 });
 
-test('density at 15 reverses the density at temperature for jet fuel', () => {
-  const { alpha15 } = thermalExpansionCoefficient(800.0);
-  const densityAt30 = 800.0 * volumeCorrectionFactor(alpha15, 30.0);
-  const r = densityAt15(densityAt30, 30.0);
-  assertClose(800.0, r.density15, 1e-5);
-  assert.equal(r.group, FormulaGroup.JET);
-  assertEq(0.8, r.density15KgPerLitre, 1e-7);
-});
-
-test('density at 15 reverses the density at temperature for avgas, cold', () => {
-  const { alpha15 } = thermalExpansionCoefficient(720.0);
-  const densityAtMinus20 = 720.0 * volumeCorrectionFactor(alpha15, -20.0);
-  const r = densityAt15(densityAtMinus20, -20.0);
-  assertClose(720.0, r.density15, 1e-5);
-  assert.equal(r.group, FormulaGroup.GASOLINE);
+test('density at 15 reverses the density chart in every group', () => {
+  for (const [d15, t] of [[800.0, 30.0], [720.0, -20.0], [780.0, 40.0], [845.0, -35.0], [650.0, 45.0]]) {
+    const atT = densityChart(d15, t, t)[0].density;
+    assertClose(d15, densityAt15(atT, t).density15, 1e-6, `ρ15 ${d15} at ${t} °C`);
+  }
 });
 
 test('density at 15 works across a group boundary', () => {
-  const { alpha15 } = thermalExpansionCoefficient(780.0);
-  const densityAt40 = 780.0 * volumeCorrectionFactor(alpha15, 40.0);
-  assert.ok(densityAt40 < 770.352);
-  const r = densityAt15(densityAt40, 40.0);
-  assertClose(780.0, r.density15, 1e-5);
-  assert.equal(r.group, FormulaGroup.TRANSITION);
+  const at40 = densityChart(780.0, 40.0, 40.0)[0].density;
+  assert.ok(at40 < 770.352);
+  assert.equal(densityAt15(at40, 40.0).group, FormulaGroup.TRANSITION);
 });
 
 test('glass hydrometer correction is one at 15 and slightly below one when warm', () => {
-  assertEq(1.0, hydrometerCorrection(15.0), 1e-12);
+  assertClose(1.0, hydrometerCorrection(15.0), 1e-12);
   const hyc30 = hydrometerCorrection(30.0);
   assertClose(1.0 - 0.000023 * 15 - 0.00000002 * 225, hyc30, 1e-12);
   const plain = densityAt15(790.0, 30.0, false);
   const glass = densityAt15(790.0, 30.0, true);
   assert.equal(glass.hydrometerCorrection, hyc30);
-  assert.ok(glass.density15 < plain.density15);
   assertClose(plain.density15 * hyc30, glass.density15, 0.01);
 });
 
 test('density at 15 rejects values outside the table', () => {
-  assertFuelError(() => densityAt15(500.0, 20.0));
-  assertFuelError(() => densityAt15(800.0, 200.0));
-  assertFuelError(() => densityAt15(-1.0, 20.0));
+  assertFuelError(() => densityAt15(500.0, 20.0), ErrorCode.DENSITY15_OUT_OF_TABLE);
+  assertFuelError(() => densityAt15(-1.0, 20.0), ErrorCode.DENSITY_NOT_POSITIVE);
   const e = assertFuelError(() => densityAt15(800.0, 200.0), ErrorCode.TEMP_OUT_OF_RANGE);
   assert.deepEqual(e.params, { min: MIN_TEMP_C, max: MAX_TEMP_C });
 });
 
+// --- Mass to volume ------------------------------------------------------------------------
+
 test('volume for mass is the reverse of correct', () => {
-  const forward = correct({ product: Product.JET_A1, density15: 800.0, observedTempC: 30.0, observedVolume: 10_000.0 });
+  const forward = correct({ product: Product.JET_A1, density15: 800.0, observedTempC: 30.0, observedVolume: 10000.0 });
   const back = volumeForMass(800.0, forward.massKg, 30.0);
-  assertClose(10_000.0, back.volumeAtTemp, 1e-6);
-  assertClose(forward.volumeAt15, back.volumeAt15, 1e-6);
+  assertClose(10000.0, back.volumeAtTemp, 1e-6);
   assert.equal(back.group, FormulaGroup.JET);
 });
 
 test('volume for mass at 15 C is mass over density', () => {
-  const r = volumeForMass(800.0, 7_888.0, 15.0);
-  assertClose(9_860.0, r.volumeAtTemp, 1e-9);
-  assertClose(9_860.0, r.volumeAt15, 1e-9);
+  assertClose(9860.0, volumeForMass(800.0, 7888.0, 15.0).volumeAtTemp, 1e-9);
 });
 
 test('volume for mass in US gallons and pounds', () => {
-  const litres = volumeForMass(800.0, 1_000.0, 25.0);
-  const gallons = volumeForMass(800.0, 1_000.0, 25.0, VolumeUnit.US_GALLON);
+  const litres = volumeForMass(800.0, 1000.0, 25.0);
+  const gallons = volumeForMass(800.0, 1000.0, 25.0, VolumeUnit.US_GALLON);
   assertClose(litres.volumeAtTemp / 3.785411784, gallons.volumeAtTemp, 1e-9);
-  assertClose(1_000.0, 2_204.62262185 * KG_PER_LB, 1e-6);
+  assertClose(1000.0, 2204.62262185 * KG_PER_LB, 1e-6);
 });
 
 test('volume for mass rejects a negative mass', () => {
   assertFuelError(() => volumeForMass(800.0, -1.0, 20.0), ErrorCode.MASS_NEGATIVE);
 });
+
+// --- API gravity ---------------------------------------------------------------------------
 
 test('45 API is about 0_8013 kg per litre at 15 C', () => {
   const r = densityFromApiGravity(45.0);
@@ -254,6 +272,7 @@ test('45 API is about 0_8013 kg per litre at 15 C', () => {
   assert.ok(r.at15.density15 > r.density60F);
   assertClose(801.32, r.at15.density15, 0.05);
   assert.equal(r.at15.group, FormulaGroup.JET);
+  assertClose(r.density60F, coefficients(r.at15.density15).density60, 1e-6);
 });
 
 test('10 API is the density of water', () => {
@@ -264,12 +283,12 @@ test('10 API is the density of water', () => {
 
 test('API conversion refuses bad values', () => {
   assertFuelError(() => densityFromApiGravity(-140.0), ErrorCode.API_NOT_VALID);
-  assertFuelError(() => densityFromApiGravity(Number.NaN), ErrorCode.API_NOT_VALID);
-  const out = assertFuelError(() => densityFromApiGravity(150.0), ErrorCode.DENSITY15_OUT_OF_TABLE);
-  assert.equal(typeof out.params.density15, 'number');
+  assertFuelError(() => densityFromApiGravity(NaN), ErrorCode.API_NOT_VALID);
+  assertFuelError(() => densityFromApiGravity(150.0), ErrorCode.DENSITY15_OUT_OF_TABLE);
 });
 
-// Web-only: the input parser accepts both decimal marks, like the Android String.toNumberOrNull().
+// --- Web only ------------------------------------------------------------------------------
+
 test('parseNumber accepts a dot or a comma', () => {
   assert.equal(parseNumber('0.800'), 0.8);
   assert.equal(parseNumber('0,800'), 0.8);
@@ -279,4 +298,19 @@ test('parseNumber accepts a dot or a comma', () => {
   assert.equal(parseNumber('-'), null);
   assert.equal(parseNumber('1,2,3'), null);
   assert.equal(parseNumber('abc'), null);
+});
+
+test('matches the shared reference grid (also checked by the Kotlin tests)', () => {
+  // core/src/test/resources/vcf-grid.csv, made by web/tools/make-grid.mjs. The Kotlin suite reads
+  // the same file, so the two implementations must agree on every row.
+  const csv = readFileSync(new URL('../core/src/test/resources/vcf-grid.csv', import.meta.url), 'utf8');
+  const rows = csv.trim().split(/\r?\n/).slice(1);
+  assert.ok(rows.length > 3000);
+  for (const row of rows) {
+    const [d, t, group, d60, vcf] = row.split(',');
+    const c = coefficients(Number(d));
+    assert.equal(c.group, group, row);
+    assertClose(Number(d60), c.density60, 5e-7, row);
+    assert.equal(volumeCorrectionFactor(Number(d), Number(t)).toFixed(5), vcf, row);
+  }
 });

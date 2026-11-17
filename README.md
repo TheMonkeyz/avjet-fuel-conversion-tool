@@ -1,10 +1,10 @@
 # Avjet fuel conversion tool
 
-Aviation fuel calculator, as an Android app and as a web app (PWA). You type the uplifted volume
-and the fuel temperature from the meter. The tool corrects the volume to 15 °C, the standard
-reference temperature. It also shows the VCF, the density at the fuel temperature, and the fuel
-mass in kg and lb. Fuel expands when warm and shrinks when cold, so only the 15 °C volume can be
-compared from one uplift to the next.
+Aviation fuel calculator, as an Android app and as a web app (PWA). It is used to compare fuel
+data with laboratory certificates of analysis. It converts a measured density or an API gravity to
+the density at 15 °C, gives the density at other temperatures, corrects a volume to 15 °C (the
+standard reference temperature) with its VCF, and gives the mass in kg and lb. It is not a
+certified measurement and is not used for sales or invoicing.
 
 - Android: download the APK from the [latest release](https://github.com/TheMonkeyz/avjet-fuel-conversion-tool/releases/latest).
 - Web (also on iPhone): <https://themonkeyz.github.io/avjet-fuel-conversion-tool/>. In Safari, tap
@@ -15,31 +15,36 @@ Changes per version are in [CHANGELOG.md](CHANGELOG.md).
 
 ## How it works
 
-It uses the generalized equations of ASTM D1250-80 / API MPMS Chapter 11.1 (1980) (metric, 15 °C
-base, Table 54B for refined products):
+It follows **ASTM D1250-08 / API MPMS Chapter 11.1-2004** for generalized refined products
+(the procedures behind the former Tables 53B and 54B, 15 °C base). The standard works at 60 °F:
 
 ```
-α15 = K0 / ρ15² + K1 / ρ15
-VCF = exp( −α15 · Δt · (1 + 0.8 · α15 · Δt) ),   Δt = t − 15
-V15 = Vmeasured × VCF
+ρ60  = density at 60 °F, found from ρ15 by iteration
+α60  = K0 / ρ*² + K1 / ρ* + K2                       (per °F; ρ* = ρ60 shifted to the IPTS-68 scale)
+CTL  = exp( −α60 · Δt · (1 + 0.8 · α60 · (Δt + δ60)) ),   Δt = t(°F, IPTS-68) − 60.0068749
+VCF  = CTL(t) / CTL(15 °C), rounded to 5 decimals
+V15  = Vmeasured × VCF
 mass = V15 (litres) × ρ15 (kg/L)
 ```
 
-| Product group (Table 54B)   | Density at 15 °C (kg/L)  | K0        | K1     |
-|-----------------------------|--------------------------|-----------|--------|
-| Gasoline / avgas            | 0.653 – 0.770352         | 346.4228  | 0.4388 |
-| Transition zone             | 0.770352 – 0.7875253     | A = −0.00336312, B = 2680.3206 (α = A + B/ρ²) |
-| Jet fuel / kerosene         | 0.7875253 – 0.8383127    | 594.5418  | 0      |
-| Fuel oil / diesel           | 0.8383127 – 1.075        | 186.9696  | 0.4862 |
+| Product group | Density at 60 °F (kg/L) | K0        | K1     | K2         |
+|---------------|-------------------------|-----------|--------|------------|
+| Gasolines     | 0.6106 – 0.770352       | 192.4571  | 0.2438 | 0          |
+| Transition    | 0.770352 – 0.7875195    | 1489.0670 | 0      | −0.0018684 |
+| Jet fuels     | 0.7875195 – 0.8383127   | 330.3010  | 0      | 0          |
+| Fuel oils     | 0.8383127 – 1.1635      | 103.8720  | 0.2701 | 0          |
 
-The constants K0, K1, A and B are for ρ in kg/m³, as in the standard. The screen shows and takes
-density in kg/L; the calculation core works in kg/m³ (1 kg/L = 1000 kg/m³) and the screen converts
-at input and output.
+The constants are for ρ in kg/m³, as in the standard. The screen shows and takes density in kg/L;
+the calculation core works in kg/m³ (1 kg/L = 1000 kg/m³) and the screen converts at input and
+output. The full method, the source of every constant and what is still to be checked are in
+[docs/VALIDATION.md](docs/VALIDATION.md). **The tool has not yet been checked against the official
+test data of the standard.**
 
 The group is chosen from the density, as the standard requires. The fuel picker only fills in a
 typical density (Jet A-1: 0.800, Jet A: 0.810, Avgas 100LL: 0.720, Other fuel: 0.780 kg/L). Always
-type the real density from the fuel release note when you have it. "Custom coefficient" lets you
-type α15 directly; the tool then gives volumes only, no mass.
+type the real density from the laboratory certificate or the fuel release note. "Custom
+coefficient" lets you type a coefficient α (per °C) directly; this is outside the standard, and the
+tool then gives volumes only, no mass.
 
 Volume can be entered in litres or US gallons. Results keep the same unit.
 
@@ -81,8 +86,8 @@ The "Density 15 °C" tab has two modes. In both, a button copies the result into
 calculator.
 
 **Measured density.** Converts a density (kg/L) measured at any temperature to the density at
-15 °C (Table 53B). The standard solves this by iteration, because the expansion coefficient depends
-on the 15 °C density you are looking for. A switch applies the glass hydrometer correction
+15 °C. The standard solves this by iteration, because the expansion coefficient depends on the
+density you are looking for. A switch applies the glass hydrometer correction
 (HYC = 1 − 0.000023·Δt − 0.00000002·Δt²) for readings taken with a glass hydrometer. Leave it off
 for a digital density meter.
 
@@ -91,7 +96,7 @@ for a digital density meter.
 ```
 relative density 60/60 °F = 141.5 / (°API + 131.5)
 density at 60 °F (kg/m³)  = relative density × 999.016   (density of water at 60 °F)
-density at 15 °C          = density at 60 °F (15.56 °C) taken to 15 °C with Table 53B above
+density at 15 °C          = density at 60 °F × CTL(15 °C)
 ```
 
 Example: 45 °API → relative density 0.8017 → 0.8009 kg/L at 60 °F → 0.8013 kg/L at 15 °C.
@@ -111,14 +116,16 @@ Example: 45 °API → relative density 0.8017 → 0.8009 kg/L at 60 °F → 0.80
 gradlew.bat :core:test            # Kotlin calculation tests
 gradlew.bat :app:assembleDebug    # build app\build\outputs\apk\debug\app-debug.apk
 node --test web/                  # web calculation tests (Node 20 or later)
+node web/tools/make-grid.mjs      # rewrite the shared Kotlin/web reference grid after a math change
 ```
 
 The Android SDK location comes from `ANDROID_HOME` or `local.properties` (`sdk.dir=...`).
 
 ## Disclaimer
 
-For guidance only. It is not a certified measurement. Use the certified figures from the fuel
-release note for the load sheet.
+For comparison with laboratory certificates of analysis only. It is not a certified measurement,
+and it has not yet been checked against the official test data of ASTM D1250-08 / API MPMS
+11.1-2004 (see [docs/VALIDATION.md](docs/VALIDATION.md), open item O1).
 
 ## Build and release
 

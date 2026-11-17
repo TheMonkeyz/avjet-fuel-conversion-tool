@@ -19,7 +19,7 @@
     <string name="hint_jet_a1">Spec: 0.775–0.840 kg/L (ASTM D1655, DEF STAN 91-091)</string>
     <string name="hint_jet_a">Spec: 0.775–0.840 kg/L (ASTM D1655)</string>
     <string name="hint_avgas">Typical: 0.695–0.740 kg/L (ASTM D910)</string>
-    <string name="hint_other">Table 54B covers 0.653–1.075 kg/L</string>
+    <string name="hint_other">The tables cover 0.612–1.163 kg/L</string>
 
     <string name="unit_litres">Litres</string>
     <string name="unit_us_gallons">US gallons</string>
@@ -41,7 +41,7 @@
     <string name="not_a_number">Not a number</string>
 
     <string name="glass_title">Glass hydrometer</string>
-    <string name="glass_desc">On: corrects for the glass expanding (Table 53). Off for a digital density meter.</string>
+    <string name="glass_desc">On: corrects for the glass expanding. Off for a digital density meter.</string>
 
     <string name="prompt_fill">Fill in all the fields to see the result.</string>
     <string name="prompt_density">Type the measured density and temperature.</string>
@@ -54,8 +54,8 @@
     <string name="line_mass">Fuel mass</string>
     <string name="line_density_obs">Density at fuel temperature</string>
     <string name="line_hyc">Glass hydrometer correction</string>
-    <string name="line_alpha">Expansion coefficient α15</string>
-    <string name="line_table">Table used</string>
+    <string name="line_alpha">Expansion coefficient α60</string>
+    <string name="line_table">Product group</string>
     <string name="btn_use_density">Use this density in the volume calculator</string>
 
     <string name="chart_need_density">The density chart needs a fuel with a density. Pick Jet A-1, Jet A, Avgas or Other fuel.</string>
@@ -65,10 +65,10 @@
     <string name="chart_desc">Density and volume correction factor (VCF) at each temperature.</string>
     <string name="chart_marked">Marked row: closest to your fuel temperature of %1$s °C.</string>
 
-    <string name="group_gasoline">Gasoline / avgas (Table 54B)</string>
-    <string name="group_transition">Transition zone (Table 54B)</string>
-    <string name="group_jet">Jet fuel / kerosene (Table 54B)</string>
-    <string name="group_fuel_oil">Fuel oil / diesel (Table 54B)</string>
+    <string name="group_gasoline">Gasolines</string>
+    <string name="group_transition">Transition zone</string>
+    <string name="group_jet">Jet fuels</string>
+    <string name="group_fuel_oil">Fuel oils</string>
     <string name="group_custom">Custom coefficient</string>
 
     <string name="err_density_nan">Density must be a number.</string>
@@ -99,7 +99,7 @@
     <string name="mass_needs_density">Mass → volume needs a density. Pick Jet A-1, Jet A, Avgas or Other fuel.</string>
     <string name="err_mass_neg">Mass must be zero or more.</string>
 
-    <string name="disclaimer">Based on ASTM D1250-80 / API MPMS 11.1 generalized equations (Table 54B, 15 °C base). For guidance only. Use the certified figures from the fuel release note for the load sheet.</string>
+    <string name="disclaimer">Based on ASTM D1250-08 / API MPMS 11.1-2004 (generalized refined products, 15 °C base). For comparison with laboratory certificates of analysis. Not a certified measurement. Not yet checked against the official test data of the standard.</string>
     <string name="density_mode_measured">Measured density</string>
     <string name="density_mode_api">API gravity</string>
     <string name="label_api">API gravity (°API)</string>
@@ -108,4 +108,5 @@
     <string name="line_sg">Relative density 60/60 °F</string>
     <string name="line_density_60f">Density at 60 °F</string>
     <string name="err_api">API gravity must be a number above −131.5.</string>
+    <string name="line_alpha_custom">Expansion coefficient (custom)</string>
 </resources>

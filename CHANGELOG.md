@@ -3,12 +3,23 @@
 Each version is a git tag and a GitHub Release with its signed Android APK. The web app is
 published from `main`. The method and its verification are in [docs/VALIDATION.md](docs/VALIDATION.md).
 
-## Unreleased
+## Unreleased (1.2.0)
 
-- Documentation: README brought up to date (kg/L, °API, web app, decimal marks); added
-  `docs/VALIDATION.md` (method, verification record, open items) and this changelog.
-- Test name corrected: the 45 °API test checks 0.8013 kg/L (the name said 0.8016). No change to
-  the test values or to the calculation.
+- **Calculation changed to ASTM D1250-08 / API MPMS Chapter 11.1-2004** (generalized refined
+  products, 15 °C base), replacing the 1980 equations. The group is now chosen from the density at
+  60 °F; temperatures are converted to the IPTS-68 scale; the VCF is rounded to 5 decimals.
+  On the test points, results moved by at most 0.00001 in the VCF. Same change in the Android and
+  web code.
+- The °API conversion now uses the 60 °F method of the standard (open item O2 closed).
+- The expansion coefficient is shown as α60 per °F (the standard's form). Product groups are named
+  Gasolines, Transition zone, Jet fuels, Fuel oils.
+- Accepted density at 15 °C is now 0.6112–1.1638 kg/L (the 60 °F limits of the standard).
+- New cross-check: a 3,713-point reference grid that the Kotlin and web tests must both match.
+- Intended use stated: comparison with laboratory certificates of analysis; not for sales.
+- Documentation: README brought up to date; added `docs/VALIDATION.md` (method, source of each
+  constant, verification record, open items) and this changelog.
+- Added `CLAUDE.md`: project rules for changes to the math, docs and releases.
+- **Not yet checked against the official test data of the standard** (open item O1).
 
 ## 1.1.0 – 2026-11-16
 

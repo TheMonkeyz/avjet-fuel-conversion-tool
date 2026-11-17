@@ -1,6 +1,6 @@
 // Service worker: precaches every file of the app so it works fully offline.
 // Bump VERSION whenever a file changes, so phones fetch the new files and drop the old cache.
-const VERSION = 'v1';
+const VERSION = 'v2';
 const PREFIX = 'avjet-fuel-';
 const CACHE = PREFIX + VERSION;
 

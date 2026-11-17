@@ -1,7 +1,7 @@
 # Avjet fuel conversion tool (web / PWA)
 
 Web version of the Android app in this repo: aviation fuel volume correction to 15 °C with the
-ASTM D1250-80 / API MPMS 11.1 Table 54B equations. Same features as the app: Volume (volume → mass and
+ASTM D1250-08 / API MPMS 11.1-2004 method (generalized refined products, 15 °C base). Same features as the app: Volume (volume → mass and
 mass → volume), Density chart, Density 15 °C (measured density or API gravity), English and French.
 
 Plain static files, no build step, no dependencies, no external requests. After the first visit it works
@@ -11,6 +11,7 @@ offline (service worker), and it can be installed on a phone home screen ("Add t
 |---|---|
 | `calc.js` | The math, a port of `core/.../FuelCalculator.kt` (same constants, errors as codes) |
 | `calc.test.mjs` | The tests of `FuelCalculatorTest.kt`, same values and tolerances |
+| `tools/make-grid.mjs` | Writes `core/src/test/resources/vcf-grid.csv`, the 3,713-point grid both test suites must match |
 | `i18n.js` | English and French text, from `app/src/main/res/values*/strings.xml` |
 | `app.js`, `index.html`, `styles.css` | The screen |
 | `sw.js` | Service worker: precaches every file, cache first. Bump `VERSION` when a file changes |

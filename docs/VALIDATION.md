@@ -1,6 +1,6 @@
 # Method and verification record
 
-This document describes what the Avjet fuel conversion tool calculates, which standards it
+This document describes what the Avjet fuel conversion tool calculates, which standard it
 follows, how the calculation was checked, and what is not yet checked. It is written so that an
 auditor can trace each result back to a formula, each formula to the code, and each piece of code to
 a test.
@@ -8,138 +8,164 @@ a test.
 | Item | Value |
 |---|---|
 | Tool | Avjet fuel conversion tool (Android app `com.fuelvolume.app` and web app) |
-| Version covered | 1.1.0 (git tag `v1.1.0`) |
+| Version covered | 1.2.0 (not yet tagged) |
 | Source code | <https://github.com/TheMonkeyz/avjet-fuel-conversion-tool> |
 | Document status | Kept in the repository; change it in the same commit as any change to the math |
 
 ## 1. Intended use and limits
 
-The tool gives **guidance values** for aviation fuel handling: volume corrected to 15 °C, mass from
-volume, volume to order for a mass, density at other temperatures, and density at 15 °C from a
-measured density or an API gravity.
+The tool is used to **compare fuel data with laboratory certificates of analysis**: density at
+15 °C from a measured density or an API gravity, density at other temperatures, volume corrected to
+15 °C, and mass from volume. It is not used for sales or invoicing.
 
-It is **not** a certified measurement system and it is not a legal-metrology instrument. The
-figures for the load sheet and for invoicing must come from the certified fuel release note and the
-certified meter. Every screen shows this disclaimer.
+It is **not** a certified measurement system and not a legal-metrology instrument. Every screen
+shows this.
 
-## 2. Standards and references
+## 2. Standard
 
 | Reference | Used for |
 |---|---|
-| ASTM D1250-80 / API MPMS Chapter 11.1 (1980), Table 54B "Generalized Products, Correction of Volume to 15 °C against Density at 15 °C" | α15 equations, constants, group limits, VCF equation |
-| Same standard, Table 53B "Generalized Products, Correction of Observed Density to Density at 15 °C" | Density at 15 °C from a measured density (iteration, section 4.4) |
-| Glass hydrometer correction, as given in the code; source to be confirmed (open item O4) | HYC formula (section 4.5) |
+| **ASTM D1250-08 / API MPMS Chapter 11.1-2004**, temperature correction of generalized refined products (the procedures behind the former Tables 53B and 54B, 15 °C base) | α60 equation, constants K0, K1, K2, group limits, ITS-90 → IPTS-68 temperature conversion, CTL equation, 15 °C ↔ 60 °F density conversion, 5-decimal rounding of the CTL |
 | Definition of API gravity (API MPMS / ASTM D287, D1298) | °API → relative density 60/60 °F (section 4.6) |
-| Density of water at 60 °F = 999.016 kg/m³ (API MPMS Chapter 11.5; to be confirmed, open item O4) | Relative density → density (section 4.6) |
+| Density of water at 60 °F = 999.016 kg/m³ | Relative density → density (section 4.6) |
 | ASTM D1655, DEF STAN 91-091, ASTM D910 | Density ranges shown as hints only; not used in any calculation |
 
-**Edition note (important for an audit).** The 1980 tables were replaced by ASTM D1250-04 /
-API MPMS 11.1-2004, and later editions exist. The newer editions use a different calculation
-procedure. This tool implements the **1980**
-equations. Results from the two editions are expected to be close for aviation fuels, but the
-size of the difference has **not** been measured for this tool (see section 7, open item O1). If your
-procedures, contract or authority require the 2004 or a later edition, this tool does not meet
-that requirement as is.
+Up to version 1.1.0 the tool used the older 1980 equations (ASTM D1250-80). Version 1.2.0 replaces
+them with the 2004 method that ASTM D1250-08 refers to. For the test points in section 6.3, the
+results changed by at most 0.00001 in the VCF.
+
+Pressure correction (CPL) is not applied: the tool assumes atmospheric pressure (0 psig).
+
+### 2.1 Where the numbers come from
+
+The tool was written without an official copy of the standard. Each value below is marked with how
+it was checked.
+
+| Value | Source used | Status |
+|---|---|---|
+| K0, K1, K2 for the four refined-product groups | Two public sources agree: Kelton technical notes C249/C251 and the Wikipedia article "Volume correction factor" | Confirmed by public sources, not by the standard text |
+| Group limits 770.352, 787.5195, 838.3127 kg/m³ at 60 °F; range 610.6–1163.5 kg/m³ | Kelton C249 | Confirmed by one public source |
+| Group chosen from the density at 60 °F | Kelton C251 | Confirmed by one public source |
+| CTL = exp{−α ΔT [1 + 0.8 α (ΔT + δ)]} | Wikipedia | Confirmed by one public source |
+| CTL rounded to 5 decimals | Wikipedia | Confirmed by one public source |
+| ITS-90 → IPTS-68 coefficients a1…a8 | a1–a3 confirmed by a public source on the ITS-90 scale; a4–a8 from memory of the standard | Partly confirmed. Internal check: with these coefficients, 60 °F converts to 60.0068749 °F, which is exactly the constant of the standard (test "60 F on the IPTS-68 scale…") |
+| 60.0068749 °F and δ60 = 0.01374979547 °F | From memory of the standard | Internally consistent: δ60 = 2 × 0.0068749 (tested) |
+| ρ* (density shift) formula with A and B | From memory of the standard | Not confirmed. Its effect is about 0.003 kg/m³ on ρ*, which changes the VCF by less than 1·10⁻⁸ |
+| 15 °C ↔ 60 °F density conversion by iteration, and VCF(15 °C base) = CTL(t)/CTL(15 °C) | From memory of the standard | Not confirmed |
+| Glass hydrometer correction HYC | From the first version of the tool | Not confirmed |
+| Water density 999.016 kg/m³ at 60 °F | From memory | Not confirmed |
+
+**All of these must be checked against the official standard (open item O1) before the tool is
+relied on in an audit.**
 
 ## 3. Units
 
 | Quantity | Unit on screen | Unit in the calculation core |
 |---|---|---|
 | Density | kg/L | kg/m³ (1 kg/L = 1000 kg/m³ exactly) |
-| Temperature | °C | °C |
+| Temperature | °C (ITS-90) | °C, converted to °F (IPTS-68) inside the equations |
 | Volume | L or US gal | same as input (1 US gal = 3.785411784 L exactly) |
 | Mass | kg or lb | kg (1 kg = 2.20462262185 lb) |
-| Thermal expansion coefficient α15 | per °C | per °C |
+| α60 | per °F | per °F |
 
-The constants K0, K1, A and B below are defined for density in kg/m³, as in the standard. The screen
-converts kg/L ↔ kg/m³ only at input and output; no rounding is applied in between.
+The screen converts kg/L ↔ kg/m³ only at input and output.
 
 ## 4. Calculation method
 
-### 4.1 Thermal expansion coefficient α15 (Table 54B)
+### 4.1 Commodity groups and α60
 
 ```
-α15 = K0 / ρ15² + K1 / ρ15            (gasoline, jet, fuel oil groups)
-α15 = A + B / ρ15²                    (transition zone)
+α60 = K0 / ρ*² + K1 / ρ* + K2          (per °F, ρ* in kg/m³)
 ```
 
-| Group | ρ15 range (kg/m³) | K0 | K1 | A | B |
-|---|---|---|---|---|---|
-| Gasoline / avgas | 653.0 ≤ ρ < 770.352 | 346.4228 | 0.4388 | | |
-| Transition zone | 770.352 ≤ ρ < 787.5253 | | | −0.00336312 | 2680.3206 |
-| Jet fuel / kerosene | 787.5253 ≤ ρ < 838.3127 | 594.5418 | 0 | | |
-| Fuel oil / diesel | 838.3127 ≤ ρ ≤ 1075.0 | 186.9696 | 0.4862 | | |
+| Group | ρ60 range (kg/m³ at 60 °F) | K0 | K1 | K2 |
+|---|---|---|---|---|
+| Gasolines | 610.6 ≤ ρ60 < 770.352 | 192.4571 | 0.2438 | 0 |
+| Transition zone | 770.352 ≤ ρ60 < 787.5195 | 1489.0670 | 0 | −0.0018684 |
+| Jet fuels | 787.5195 ≤ ρ60 < 838.3127 | 330.3010 | 0 | 0 |
+| Fuel oils | 838.3127 ≤ ρ60 ≤ 1163.5 | 103.8720 | 0.2701 | 0 |
 
-The group is chosen from ρ15 only, never from the product name. Densities outside 653–1075 kg/m³
-are refused.
-
-### 4.2 Volume correction factor (VCF)
+The group is chosen from ρ60, never from the product name. ρ* is ρ60 shifted to the IPTS-68 scale:
 
 ```
-Δt  = t − 15
-VCF = exp( −α15 · Δt · (1 + 0.8 · α15 · Δt) )
+A   = δ60/2 · ((K0/ρ60 + K1)/ρ60 + K2)
+B   = (2·K0 + K1·ρ60) / (K0 + (K1 + K2·ρ60)·ρ60)
+ρ*  = ρ60 · (1 + (exp(A·(1 + 0.8·A)) − 1) / (1 + A·(1 + 1.6·A)·B))
+δ60 = 0.01374979547 °F
+```
+
+### 4.2 Temperature and CTL from 60 °F
+
+```
+τ     = t90(°C) / 630
+t68   = t90 − τ·(a1 + a2·τ + … + a8·τ⁷)          (°C)
+a1…a8 = −0.148759, −0.267408, 1.080760, 1.269056, −4.089591, −1.871251, 7.438081, −3.536296
+Δt    = (1.8·t68 + 32) − 60.0068749              (°F)
+CTL   = exp( −α60 · Δt · (1 + 0.8 · α60 · (Δt + δ60)) )
 ```
 
 Temperatures outside −50 °C to +150 °C are refused.
 
-### 4.3 Results derived from the VCF
+### 4.3 15 °C base
+
+```
+ρ60 from ρ15:   ρ60 = ρ15 / CTL(ρ60, 15 °C), by iteration from ρ60 = ρ15
+VCF(t → 15 °C) = CTL(ρ60, t) / CTL(ρ60, 15 °C), rounded to 5 decimals
+```
+
+Accepted ρ15: 611.16 to 1163.86 kg/m³ (the 60 °F limits taken to 15 °C).
+
+Results:
 
 ```
 V15            = Vobserved × VCF(tobserved)
 V at target    = V15 / VCF(ttarget)
-ρ at t         = ρ15 × VCF(t)
+ρ at t         = ρ15 × CTL(t)/CTL(15 °C)       (not rounded)
 mass (kg)      = V15 (L) × ρ15 (kg/m³) / 1000
 V15 for a mass = mass (kg) × 1000 / ρ15 (kg/m³)
 V to order     = V15 / VCF(tfuel)
 ```
 
-Mass does not depend on temperature. With "Custom coefficient", α15 is typed by the user
-(0 < α15 < 0.01 per °C) and no mass is given.
+With "Custom coefficient", the user types α (per °C, 0 < α < 0.01) and the tool uses
+VCF = exp(−α·Δt·(1 + 0.8·α·Δt)) with Δt = t − 15 °C, rounded to 5 decimals. This is not part of the
+standard; it is for products outside the refined-product groups. No mass is given.
 
-### 4.4 Density at 15 °C from a measured density (Table 53B)
-
-α15 depends on ρ15, which is the unknown, so the value is found by iteration:
+### 4.4 Density at 15 °C from a measured density
 
 ```
-ρ15(0)   = ρobserved × HYC        (HYC = 1 when no glass hydrometer)
-ρ15(n+1) = ρobserved × HYC / VCF( α15(ρ15(n)), tobserved )
+ρobs' = ρobserved × HYC                           (HYC = 1 when no glass hydrometer)
+ρ60   = ρobs' / CTL(ρ60, tobserved), by iteration from ρ60 = ρobs'
+ρ15   = ρ60 × CTL(ρ60, 15 °C)
 ```
 
-Stop when |ρ15(n+1) − ρ15(n)| < 1·10⁻⁷ kg/m³, after at most 100 rounds. During the iteration the
-density used to choose α15 is held inside 653–1075 kg/m³; the final ρ15 must be inside that range
-or the result is refused.
+Stop when the change is below 1·10⁻⁹ kg/m³ (at most 100 rounds). ρ60 must end inside
+610.6–1163.5 kg/m³ or the result is refused.
 
 ### 4.5 Glass hydrometer correction
 
 ```
-HYC = 1 − 0.000023 · Δt − 0.00000002 · Δt²,   Δt = t − 15
+HYC = 1 − 0.000023 · Δt − 0.00000002 · Δt²,   Δt = t − 15 °C
 ```
 
-Applied only when the user turns on "Glass hydrometer". Off for a digital density meter.
+Only when "Glass hydrometer" is on. Off for a digital density meter.
 
 ### 4.6 API gravity to density at 15 °C
 
 ```
 relative density 60/60 °F = 141.5 / (°API + 131.5)
-ρ60F (kg/m³)              = relative density × 999.016
-ρ15                       = section 4.4 with ρobserved = ρ60F, tobserved = 15.5556 °C (60 °F), HYC = 1
+ρ60 (kg/m³)               = relative density × 999.016
+ρ15                       = ρ60 × CTL(ρ60, 15 °C)
 ```
 
-°API must be a number above −131.5. Example: 45 °API → 0.801700 → 800.911 kg/m³ at 60 °F →
-801.323 kg/m³ (0.8013 kg/L) at 15 °C.
-
-**Method note.** The standard route from °API to density at 15 °C is through the 60 °F tables
-(Table 51 of the 1980 standard, or API MPMS Chapter 11.5). This tool instead takes ρ at 60 °F to
-15 °C with the 15 °C Table 53B equations. Both describe the same physical correction over 0.56 °C,
-so the difference is expected to be very small, but it has **not** been measured (open item O2).
+Example: 45 °API → 0.801700 → 800.911 kg/m³ at 60 °F → 801.323 kg/m³ (0.8013 kg/L) at 15 °C.
 
 ### 4.7 Rounding
 
-The 1980 standard sets rounding and truncation rules for the inputs, for α15 and for the VCF, so
-that every user of the printed tables gets the same digits. **This tool does not apply those
-rules.** It calculates in IEEE 754 double precision and rounds only for display (VCF to 5
-decimals, density to 4 decimals in kg/L, volume to 0 or 1 decimal, mass to 0 decimals). A result can
-therefore differ from the printed table in the last printed digit (open item O1).
+- The VCF is rounded to 5 decimals (halves round up), as the standard does for the CTL, and the
+  rounded VCF is used for volumes and mass.
+- Densities are not rounded inside the calculation; the screen shows 4 decimals in kg/L.
+- The tool does **not** round the inputs (density, temperature) before the calculation. Whether
+  the standard requires this for the 15 °C procedures is not confirmed (open item O7).
 
 ## 5. Where each formula is in the code
 
@@ -147,12 +173,13 @@ There are two implementations of the same calculation. They must stay identical.
 
 | Section | Kotlin (`core/src/main/kotlin/com/fuelvolume/core/FuelCalculator.kt`) | JavaScript (`web/calc.js`) |
 |---|---|---|
-| 4.1 α15 and groups | `thermalExpansionCoefficient` | `thermalExpansionCoefficient` |
-| 4.2 VCF | `volumeCorrectionFactor` | `volumeCorrectionFactor` |
-| 4.3 Volume and mass | `correct`, `volumeForMass`, `densityChart` | `correct`, `volumeForMass`, `densityChart` |
+| 4.1 Groups, α60, ρ* | `groupFor`, `alpha60` | `groupFor`, `alpha60` |
+| 4.2 Temperature, CTL | `toIpts68F`, `ctl60Raw` | `toIpts68F`, `ctl60Raw` |
+| 4.3 15 °C base, volume, mass | `coefficients`, `volumeCorrectionFactor`, `correct`, `volumeForMass`, `densityChart` | same names |
 | 4.4 Density at 15 °C | `densityAt15` | `densityAt15` |
 | 4.5 HYC | `hydrometerCorrection` | `hydrometerCorrection` |
 | 4.6 API gravity | `densityFromApiGravity` | `densityFromApiGravity` |
+| 4.7 Rounding | `round5` | `round5` |
 | kg/L ↔ kg/m³ on screen | `app/.../MainActivity.kt` (`kgm3ToKgL`, `kgLToKgm3`) | `web/app.js` |
 
 ## 6. Verification
@@ -161,69 +188,70 @@ There are two implementations of the same calculation. They must stay identical.
 
 - Kotlin: `core/src/test/kotlin/com/fuelvolume/core/FuelCalculatorTest.kt`, run with
   `gradlew :core:test`.
-- JavaScript: `web/calc.test.mjs`, run with `node --test web/`. It has the same cases, the same
-  expected values and the same tolerances as the Kotlin tests, plus one test of number parsing
-  (dot and comma).
-- Both run in GitHub Actions on every push. A release APK is only built, and the web app is only
-  published, when the tests pass. The CI logs are kept on GitHub with each commit.
+- JavaScript: `web/calc.test.mjs`, run with `node --test web/`. Same cases, values and
+  tolerances, plus one test of number parsing.
+- **Cross-check:** `core/src/test/resources/vcf-grid.csv` holds 3,713 points (79 densities from
+  611.2 to 1163.8 kg/m³, including both sides of each group limit, × 47 temperatures from −50 to
+  150 °C). It is made from the JavaScript code by `web/tools/make-grid.mjs`. Both test suites read
+  it and must give the same group, the same ρ60 (±5·10⁻⁷ kg/m³) and the same 5-decimal VCF on every
+  point. This proves the two implementations agree. It does not prove they match the standard.
+- Both suites run in GitHub Actions on every push. A release APK is only built, and the web app
+  is only published, when the tests pass.
 
-Result for version 1.1.0: Kotlin 31 of 31 passed; JavaScript 32 of 32 passed.
+Result for version 1.2.0: Kotlin 31 of 31 passed; JavaScript 32 of 32 passed.
 
 ### 6.2 What the tests check
 
-| Kind of check | Tests | Strength |
-|---|---|---|
-| Against reference VCF values (table 6.3) | 5 | See the warning under table 6.3 |
-| Exact identities (VCF = 1 at 15 °C; 10 °API = relative density 1; density at 15 °C measured at 15 °C = input) | 3 | Strong |
-| Round trips (to target and back; density at t and back to 15 °C, in each group and across a group boundary; mass → volume → mass) | 6 | Strong for consistency, but cannot find an error in a constant |
-| Hand-calculated values (volume at target, mass in kg and lb, US gallons, mass → volume at 15 °C, API example) | 6 | Checks the arithmetic, not the standard |
-| Continuity of α15 at the group limits | 1 | Detects a wrong constant or limit |
-| Refusal of bad input (density, temperature, chart step, mass, °API out of range) | 6 | Checks the guards |
-| Other behaviour (custom coefficient, chart rows, chart trend, HYC sign) | 4 | |
+| Kind of check | Strength |
+|---|---|
+| Constants agree with each other (60 °F → 60.0068749 °F; δ60 = 2 × 0.0068749) | Strong check of a1…a8 and the two constants |
+| α60 is continuous at the three group limits | Strong check of K0, K1, K2 and the limits together |
+| Results stay within 0.0002 of the 1980 equations (section 6.3) | Shows nothing is badly wrong; not a proof of the 2004 method |
+| Exact identities (VCF = 1 at 15 °C; 10 °API = relative density 1; °API route and density route give the same ρ60) | Strong |
+| Round trips (density at t and back to 15 °C in every group; volume to target and back; mass → volume → mass) | Consistency only |
+| Hand-calculated values (mass, US gallons, custom coefficient, API example, density limits) | Checks the arithmetic |
+| Refusal of bad input | Checks the guards |
+| Kotlin = JavaScript on 3,713 points | Strong for the two implementations agreeing |
 
-### 6.3 Reference values
+### 6.3 Results compared with the 1980 equations
 
-| ρ15 (kg/m³) | t (°C) | Group | α15 (tool) | VCF (tool) | Reference VCF in the test | Tolerance |
+| ρ15 (kg/m³) | t (°C) | Group | ρ60 (kg/m³) | α60 (/°F) | VCF 2004 (tool) | VCF 1980 equations |
 |---|---|---|---|---|---|---|
-| 800 | 30 | Jet | 0.000928972 | 0.986009 | 0.9861 | ±0.0003 |
-| 800 | 0 | Jet | 0.000928972 | 1.013875 | 1.0140 | ±0.0005 |
-| 720 | 25 | Gasoline | 0.001277698 | 0.987175 | 0.9873 | ±0.0003 |
-| 750 | 25 | Gasoline | 0.001200929 | 0.987949 | 0.9880 | ±0.0003 |
-| 840 | 30 | Fuel oil | 0.000843789 | 0.987296 | 0.9873 | ±0.0003 |
+| 800 | 30 | Jet fuels | 799.5869 | 0.000516625 | 0.98600 | 0.986009 |
+| 800 | 0 | Jet fuels | 799.5869 | 0.000516625 | 1.01388 | 1.013875 |
+| 720 | 25 | Gasolines | 719.4887 | 0.000710626 | 0.98717 | 0.987175 |
+| 750 | 25 | Gasolines | 749.4994 | 0.000667882 | 0.98795 | 0.987949 |
+| 840 | 30 | Fuel oils | 839.6061 | 0.000469045 | 0.98729 | 0.987296 |
 
-**Warning.** These reference values were written into the tests when the tool was first built. They
-were **not** copied from an official copy of Table 54B, and their source is not recorded. The
-tolerances (±0.0003 = ±3 L per 10 000 L) are wider than the 4-decimal resolution of the printed
-table. So these tests show that the tool is about right; they do **not** prove that it matches the
-standard to the last digit. Closing this is open item O1.
+None of these numbers come from the official standard. See open item O1.
 
 ### 6.4 Checks on the running apps
 
 | Date | What | Result |
 |---|---|---|
-| 2026-11-15 | Android, on a phone: 10 000 L Jet A-1 at 0.800 kg/L and 30 °C | 9 860.1 L at 15 °C |
-| 2026-11-16 | Android, on a phone: 45 °API; "use this density" button | 0.8013 kg/L; value copied to the Volume tab |
-| 2026-11-16 | Web, in a desktop browser (Edge): same two cases, French and English, mass → volume, out-of-range temperature | Same results as Android; errors shown |
-| 2026-11-16 | Web, published site loads without console errors | Pass |
+| 2026-11-16 | Android 1.2.0 on a phone: Jet A-1 0.800 kg/L, 10 000 L at 30 °C | VCF 0.98600, 9 860.0 L at 15 °C, 7 888 kg, α60 0.0005166 /°F, Jet fuels. Same as the web code. |
+| 2026-11-16 | Android 1.1.0 on a phone: 45 °API; "use this density" button (1980 method) | 0.8013 kg/L; value copied to the Volume tab |
+| 2026-11-16 | Web 1.1.0 in a desktop browser (Edge), French and English | Same results as Android; errors shown |
 
-Not yet checked: the web app on a real iPhone (install, keypad, offline use).
+Not yet checked: the web app on a real iPhone.
 
 ## 7. Open items
 
 | ID | Item | Why it matters | Suggested action |
 |---|---|---|---|
-| O1 | No comparison against an official copy of ASTM D1250-80 Table 54B/53B, with its rounding rules | Section 6.3 values have no recorded source; rounding is not applied | Buy the standard. Pick at least 20 points per group across density and temperature (include the group limits, −40 °C and +50 °C). Add them as tests with tolerance ±0.00005 on the VCF, and record the source (document, page, table). |
-| O2 | The °API route (section 4.6) is not the standard route | Possible small difference | Compare 10 °API values from 30 to 60 with API MPMS 11.1 Table 3/5B/51 or 11.5, and add them as tests. |
-| O3 | 1980 edition, not 2004 or later | Some contracts and authorities require the newer edition | Decide which edition you need. If 2004 or later, the core must be changed. |
-| O4 | Sources of the HYC formula and of the water density at 60 °F not checked against the standard text | Glass hydrometer and °API results depend on them | Check against API MPMS 11.1 and 11.5 and record the references. |
-| O5 | Web app not tested on a real iPhone | iPhone is a target platform | Test install, keypad (dot and comma), offline use, and record the result in section 6.4. |
-| O6 | Typing a thousands separator (`10,000`) is read as a decimal mark (10) | A typing error could give a wrong volume | Train users, or refuse numbers with a comma followed by exactly three digits. |
+| O1 | The method was written without the official standard, and no result has been compared with official values | Section 2.1 lists values that are only partly confirmed | Get ASTM D1250-08 / API MPMS 11.1-2004 (or the API's official implementation and its test data). Check every row of section 2.1. Add at least 20 official points per group, with tolerance ±0.000005 on the VCF and ±0.05 kg/m³ on densities, and record the source (document, page, table). |
+| O2 | — | Closed in 1.2.0: the °API route now follows the 60 °F method of the standard | — |
+| O3 | Edition | ASTM D1250-08 is the edition chosen by the user (2026-11-16). Newer ASTM editions and API addenda exist | Confirm with your quality system which edition your procedures and your laboratories use. |
+| O4 | HYC formula and the water density at 60 °F are not confirmed | Glass hydrometer and °API results depend on them | Check against the standard and record the references. |
+| O5 | Web app not tested on a real iPhone | iPhone is a target platform | Test install, keypad (dot and comma), offline use; record in section 6.4. |
+| O6 | Typing a thousands separator (`10,000`) is read as a decimal mark (10) | A typing error could give a wrong value | Train users, or refuse numbers with a comma followed by exactly three digits. |
+| O7 | Inputs are not rounded before the calculation | The standard may round density and temperature first; results could differ in the last digit | Check the rounding rules of the standard for the 15 °C procedures and apply them if required. |
 
 ## 8. Change control
 
 - All changes go through git. Every release is a git tag (`vX.Y.Z`) with a GitHub Release and its
   APK. Changes per version are in [CHANGELOG.md](../CHANGELOG.md).
-- A change to the math must change **both** `FuelCalculator.kt` and `web/calc.js`, their tests, and
-  this document, in the same commit.
+- A change to the math must change **both** `FuelCalculator.kt` and `web/calc.js`, their tests,
+  the reference grid (`node web/tools/make-grid.mjs`) and this document, in the same commit.
 - Release APKs are signed with one release key, kept out of the repository (GitHub secrets and an
   offline backup), so a user can check that an update comes from the same publisher.

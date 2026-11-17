@@ -19,7 +19,7 @@ const en = {
   hint_jet_a1: 'Spec: 0.775–0.840 kg/L (ASTM D1655, DEF STAN 91-091)',
   hint_jet_a: 'Spec: 0.775–0.840 kg/L (ASTM D1655)',
   hint_avgas: 'Typical: 0.695–0.740 kg/L (ASTM D910)',
-  hint_other: 'Table 54B covers 0.653–1.075 kg/L',
+  hint_other: 'The tables cover 0.612–1.163 kg/L',
 
   unit_litres: 'Litres',
   unit_us_gallons: 'US gallons',
@@ -41,7 +41,7 @@ const en = {
   not_a_number: 'Not a number',
 
   glass_title: 'Glass hydrometer',
-  glass_desc: 'On: corrects for the glass expanding (Table 53). Off for a digital density meter.',
+  glass_desc: 'On: corrects for the glass expanding. Off for a digital density meter.',
 
   prompt_fill: 'Fill in all the fields to see the result.',
   prompt_density: 'Type the measured density and temperature.',
@@ -54,8 +54,9 @@ const en = {
   line_mass: 'Fuel mass',
   line_density_obs: 'Density at fuel temperature',
   line_hyc: 'Glass hydrometer correction',
-  line_alpha: 'Expansion coefficient α15',
-  line_table: 'Table used',
+  line_alpha: 'Expansion coefficient α60',
+  line_alpha_custom: 'Expansion coefficient (custom)',
+  line_table: 'Product group',
   btn_use_density: 'Use this density in the volume calculator',
 
   chart_need_density: 'The density chart needs a fuel with a density. Pick Jet A-1, Jet A, Avgas or Other fuel.',
@@ -65,10 +66,10 @@ const en = {
   chart_desc: 'Density and volume correction factor (VCF) at each temperature.',
   chart_marked: 'Marked row: closest to your fuel temperature of %1$s °C.',
 
-  group_gasoline: 'Gasoline / avgas (Table 54B)',
-  group_transition: 'Transition zone (Table 54B)',
-  group_jet: 'Jet fuel / kerosene (Table 54B)',
-  group_fuel_oil: 'Fuel oil / diesel (Table 54B)',
+  group_gasoline: 'Gasolines',
+  group_transition: 'Transition zone',
+  group_jet: 'Jet fuels',
+  group_fuel_oil: 'Fuel oils',
   group_custom: 'Custom coefficient',
 
   err_density_nan: 'Density must be a number.',
@@ -99,7 +100,7 @@ const en = {
   err_mass_neg: 'Mass must be zero or more.',
 
   disclaimer:
-    'Based on ASTM D1250-80 / API MPMS 11.1 generalized equations (Table 54B, 15 °C base). For guidance only. Use the certified figures from the fuel release note for the load sheet.',
+    'Based on ASTM D1250-08 / API MPMS 11.1-2004 (generalized refined products, 15 °C base). For comparison with laboratory certificates of analysis. Not a certified measurement. Not yet checked against the official test data of the standard.',
   density_mode_measured: 'Measured density',
   density_mode_api: 'API gravity',
   label_api: 'API gravity (°API)',
@@ -132,7 +133,7 @@ const fr = {
   hint_jet_a1: 'Spéc. : 0,775–0,840 kg/L (ASTM D1655, DEF STAN 91-091)',
   hint_jet_a: 'Spéc. : 0,775–0,840 kg/L (ASTM D1655)',
   hint_avgas: 'Typique : 0,695–0,740 kg/L (ASTM D910)',
-  hint_other: 'La table 54B couvre 0,653–1,075 kg/L',
+  hint_other: 'Les tables couvrent 0,612–1,163 kg/L',
 
   unit_litres: 'Litres',
   unit_us_gallons: 'Gallons US',
@@ -154,7 +155,7 @@ const fr = {
   not_a_number: 'Nombre non valide',
 
   glass_title: 'Aréomètre en verre',
-  glass_desc: 'Activé : corrige la dilatation du verre (table 53). Désactivé pour un densimètre numérique.',
+  glass_desc: 'Activé : corrige la dilatation du verre. Désactivé pour un densimètre numérique.',
 
   prompt_fill: 'Remplissez tous les champs pour voir le résultat.',
   prompt_density: 'Entrez la masse volumique et la température mesurées.',
@@ -167,8 +168,9 @@ const fr = {
   line_mass: 'Masse de carburant',
   line_density_obs: 'Masse vol. à la température du carburant',
   line_hyc: 'Correction de l’aréomètre',
-  line_alpha: 'Coefficient de dilatation α15',
-  line_table: 'Table utilisée',
+  line_alpha: 'Coefficient de dilatation α60',
+  line_alpha_custom: 'Coefficient de dilatation (personnalisé)',
+  line_table: 'Groupe de produits',
   btn_use_density: 'Utiliser cette valeur pour le calcul du volume',
 
   chart_need_density: 'Le tableau a besoin d’une masse volumique. Choisissez Jet A-1, Jet A, Avgas ou Autre carburant.',
@@ -178,10 +180,10 @@ const fr = {
   chart_desc: 'Masse volumique et facteur de correction de volume (VCF) à chaque température.',
   chart_marked: 'Ligne marquée : la plus proche de votre température de %1$s °C.',
 
-  group_gasoline: 'Essence / avgas (table 54B)',
-  group_transition: 'Zone de transition (table 54B)',
-  group_jet: 'Carburéacteur / kérosène (table 54B)',
-  group_fuel_oil: 'Mazout / diesel (table 54B)',
+  group_gasoline: 'Essences',
+  group_transition: 'Zone de transition',
+  group_jet: 'Carburéacteurs',
+  group_fuel_oil: 'Mazouts',
   group_custom: 'Coefficient personnalisé',
 
   err_density_nan: 'La masse volumique doit être un nombre.',
@@ -212,7 +214,7 @@ const fr = {
   err_mass_neg: 'La masse doit être zéro ou plus.',
 
   disclaimer:
-    'Selon les équations générales ASTM D1250-80 / API MPMS 11.1 (table 54B, base 15 °C). À titre indicatif seulement. Utilisez les valeurs certifiées du bon de livraison pour le devis de masse et centrage.',
+    'Selon ASTM D1250-08 / API MPMS 11.1-2004 (produits raffinés, base 15 °C). Pour comparaison avec les certificats d’analyse des laboratoires. Pas une mesure certifiée. Pas encore vérifié avec les données d’essai officielles de la norme.',
   density_mode_measured: 'Masse vol. mesurée',
   density_mode_api: 'Densité API',
   label_api: 'Densité API (°API)',

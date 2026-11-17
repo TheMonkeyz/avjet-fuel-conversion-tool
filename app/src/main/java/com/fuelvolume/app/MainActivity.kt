@@ -671,7 +671,7 @@ private fun MeasuredDensitySection(onUseDensity: (Double) -> Unit) {
                     HorizontalDivider()
                     ResultLine(stringResource(R.string.line_vcf), r.vcf.format(5))
                     r.hydrometerCorrection?.let { ResultLine(stringResource(R.string.line_hyc), it.format(6)) }
-                    ResultLine(stringResource(R.string.line_alpha), fmt("%.6f /°C", r.alpha15))
+                    ResultLine(stringResource(R.string.line_alpha), fmt("%.7f /°F", r.alpha60))
                     ResultLine(stringResource(R.string.line_table), r.group.label())
                     Button(onClick = { onUseDensity(r.density15) }, modifier = Modifier.fillMaxWidth()) {
                         Text(stringResource(R.string.btn_use_density))
@@ -814,7 +814,8 @@ private fun ResultCard(outcome: Result<FuelResult>?, allFilled: Boolean, unit: V
                     r.densityAtObserved?.let { d ->
                         ResultLine(stringResource(R.string.line_density_obs), "${d.kgm3ToKgL().format(4)} kg/L")
                     }
-                    ResultLine(stringResource(R.string.line_alpha), fmt("%.6f /°C", r.alpha15))
+                    r.alpha60?.let { ResultLine(stringResource(R.string.line_alpha), fmt("%.7f /°F", it)) }
+                    r.customAlpha?.let { ResultLine(stringResource(R.string.line_alpha_custom), fmt("%.6f /°C", it)) }
                     ResultLine(stringResource(R.string.line_table), r.group.label())
                 }
             }
