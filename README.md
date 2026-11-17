@@ -12,7 +12,8 @@ certified measurement and is not used for sales or invoicing.
 
 The method, its limits and the verification record are in [docs/VALIDATION.md](docs/VALIDATION.md).
 Changes per version are in [CHANGELOG.md](CHANGELOG.md). The plan to close the open items is in
-[docs/PROPOSAL-open-items.md](docs/PROPOSAL-open-items.md).
+[docs/PROPOSAL-open-items.md](docs/PROPOSAL-open-items.md). The plan for Google Play and the Apple
+App Store is in [docs/STORE-PUBLISHING.md](docs/STORE-PUBLISHING.md).
 
 ## How it works
 
