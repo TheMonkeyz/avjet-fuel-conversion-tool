@@ -11,7 +11,8 @@ certified measurement and is not used for sales or invoicing.
   Share → Add to Home Screen. It works offline after the first visit.
 
 The method, its limits and the verification record are in [docs/VALIDATION.md](docs/VALIDATION.md).
-Changes per version are in [CHANGELOG.md](CHANGELOG.md).
+Changes per version are in [CHANGELOG.md](CHANGELOG.md). The plan to close the open items is in
+[docs/PROPOSAL-open-items.md](docs/PROPOSAL-open-items.md).
 
 ## How it works
 

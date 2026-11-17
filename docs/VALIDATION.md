@@ -237,6 +237,8 @@ Not yet checked: the web app on a real iPhone.
 
 ## 7. Open items
 
+The plan to close them is in [PROPOSAL-open-items.md](PROPOSAL-open-items.md).
+
 | ID | Item | Why it matters | Suggested action |
 |---|---|---|---|
 | O1 | The method was written without the official standard, and no result has been compared with official values | Section 2.1 lists values that are only partly confirmed | Get ASTM D1250-08 / API MPMS 11.1-2004 (or the API's official implementation and its test data). Check every row of section 2.1. Add at least 20 official points per group, with tolerance ±0.000005 on the VCF and ±0.05 kg/m³ on densities, and record the source (document, page, table). |
