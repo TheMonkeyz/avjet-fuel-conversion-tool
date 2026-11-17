@@ -16,8 +16,10 @@ Changes per version are in [CHANGELOG.md](CHANGELOG.md). The plan to close the o
 
 ## How it works
 
-It follows **ASTM D1250-08 / API MPMS Chapter 11.1-2004** for generalized refined products
-(the procedures behind the former Tables 53B and 54B, 15 °C base). The standard works at 60 °F:
+The target standard is **ASTM D1250-25**, which points to the joint API/ASTM procedures of **API
+MPMS Chapter 11.1**. The tool uses the 2004 procedure for generalized refined products (behind
+the former Tables 53B and 54B, 15 °C base); the changes of its 2007 and 2019 addenda are not yet
+checked. The standard works at 60 °F:
 
 ```
 ρ60  = density at 60 °F, found from ρ15 by iteration
@@ -125,8 +127,8 @@ The Android SDK location comes from `ANDROID_HOME` or `local.properties` (`sdk.d
 ## Disclaimer
 
 For comparison with laboratory certificates of analysis only. It is not a certified measurement,
-and it has not yet been checked against the official test data of ASTM D1250-08 / API MPMS
-11.1-2004 (see [docs/VALIDATION.md](docs/VALIDATION.md), open item O1).
+and it has not yet been checked against the official text of ASTM D1250-25 / API MPMS
+11.1 and its addenda (see [docs/VALIDATION.md](docs/VALIDATION.md), open item O1).
 
 ## Build and release
 

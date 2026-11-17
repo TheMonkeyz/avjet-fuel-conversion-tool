@@ -25,14 +25,21 @@ shows this.
 
 | Reference | Used for |
 |---|---|
-| **ASTM D1250-08 / API MPMS Chapter 11.1-2004**, temperature correction of generalized refined products (the procedures behind the former Tables 53B and 54B, 15 °C base) | α60 equation, constants K0, K1, K2, group limits, ITS-90 → IPTS-68 temperature conversion, CTL equation, 15 °C ↔ 60 °F density conversion, 5-decimal rounding of the CTL |
+| **ASTM D1250-25** (target edition) and the joint API/ASTM procedures it points to, **API MPMS Chapter 11.1**: the 2004 procedure for generalized refined products (behind the former Tables 53B and 54B, 15 °C base), changed by Addendum 1 (2007) and Addendum 2 (2019). The tool implements the 2004 procedure; the addenda are not yet checked (open item O8) | α60 equation, constants K0, K1, K2, group limits, ITS-90 → IPTS-68 temperature conversion, CTL equation, 15 °C ↔ 60 °F density conversion, 5-decimal rounding of the CTL |
 | Definition of API gravity (API MPMS / ASTM D287, D1298) | °API → relative density 60/60 °F (section 4.6) |
 | Density of water at 60 °F = 999.016 kg/m³ | Relative density → density (section 4.6) |
 | ASTM D1655, DEF STAN 91-091, ASTM D910 | Density ranges shown as hints only; not used in any calculation |
 
 Up to version 1.1.0 the tool used the older 1980 equations (ASTM D1250-80). Version 1.2.0 replaces
-them with the 2004 method that ASTM D1250-08 refers to. For the test points in section 6.3, the
-results changed by at most 0.00001 in the VCF.
+them with the 2004 procedure of API MPMS 11.1. For the test points in section 6.3, the results
+changed by at most 0.00001 in the VCF.
+
+**Edition.** On 2026-11-16 the target edition was set to ASTM D1250-25, the current edition
+(released 15 December 2025; it replaces D1250-19e1). Version 1.2.0 was first documented against
+D1250-08. The calculation did not change with this decision. D1250-25 also covers a 20 °C base;
+this tool uses 15 °C only. Public sources for these facts: the
+[D1250-25 listing](https://www.en-standard.eu/astm-d1250-25-standard-guide-for-the-use-of-the-joint-api-and-astm-adjunct-for-temperature-and-pressure-volume-correction-factors-for-generalized-crude-oils-refined-products-and-lubricating-oils-api-mpms-chapter-11-1/)
+and the [ASTM store page for the adjunct with Addenda 1 and 2](https://store.astm.org/adjd1250-a1a2-e-pdf.html).
 
 Pressure correction (CPL) is not applied: the tool assumes atmospheric pressure (0 psig).
 
@@ -241,13 +248,14 @@ The plan to close them is in [PROPOSAL-open-items.md](PROPOSAL-open-items.md).
 
 | ID | Item | Why it matters | Suggested action |
 |---|---|---|---|
-| O1 | The method was written without the official standard, and no result has been compared with official values | Section 2.1 lists values that are only partly confirmed | Get ASTM D1250-08 / API MPMS 11.1-2004 (or the API's official implementation and its test data). Check every row of section 2.1. Add at least 20 official points per group, with tolerance ±0.000005 on the VCF and ±0.05 kg/m³ on densities, and record the source (document, page, table). |
+| O1 | The method was written without the official standard, and no result has been compared with official values | Section 2.1 lists values that are only partly confirmed | Get a licensed copy of ASTM D1250-25 with API MPMS 11.1 and its Addenda 1 and 2 (or the API's official implementation and its test data). Check every row of section 2.1. Add at least 20 official points per group, with tolerance ±0.000005 on the VCF and ±0.05 kg/m³ on densities, and record the source (document, page, table). |
 | O2 | — | Closed in 1.2.0: the °API route now follows the 60 °F method of the standard | — |
-| O3 | Edition | ASTM D1250-08 is the edition chosen by the user (2026-11-16). Newer ASTM editions and API addenda exist | Confirm with your quality system which edition your procedures and your laboratories use. |
+| O3 | — | Closed 2026-11-16: the target edition is ASTM D1250-25 (user decision) | — |
 | O4 | HYC formula and the water density at 60 °F are not confirmed | Glass hydrometer and °API results depend on them | Check against the standard and record the references. |
 | O5 | Web app not tested on a real iPhone | iPhone is a target platform | Test install, keypad (dot and comma), offline use; record in section 6.4. |
-| O6 | Typing a thousands separator (`10,000`) is read as a decimal mark (10) | A typing error could give a wrong value | Train users, or refuse numbers with a comma followed by exactly three digits. |
+| O6 | Typing a thousands separator (`10,000`) is read as a decimal mark (10) | A typing error could give a wrong value | Show under each box how the number was read, and warn in English when a comma is followed by exactly three digits. Do not refuse it: `0,800` is valid in French. |
 | O7 | Inputs are not rounded before the calculation | The standard may round density and temperature first; results could differ in the last digit | Check the rounding rules of the standard for the 15 °C procedures and apply them if required. |
+| O8 | The changes of API MPMS 11.1 Addendum 1 (2007) and Addendum 2 (2019), which D1250-25 includes, are not checked | They may change details of the refined-product procedure, so results could differ from D1250-25 | Read both addenda; change both implementations if needed; add tests; update section 2.1. |
 
 ## 8. Change control
 

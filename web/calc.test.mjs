@@ -2,7 +2,7 @@
 // Run with: node --test web/
 //
 // IMPORTANT: none of these values come from the official standard yet. They check the internal
-// consistency of the ASTM D1250-08 / API MPMS 11.1-2004 method and that it stays close to the 1980
+// consistency of the API MPMS 11.1-2004 method (behind ASTM D1250-25) and that it stays close to the 1980
 // tables. Official test points must still be added (docs/VALIDATION.md, open item O1).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

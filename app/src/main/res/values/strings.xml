@@ -99,7 +99,7 @@
     <string name="mass_needs_density">Mass → volume needs a density. Pick Jet A-1, Jet A, Avgas or Other fuel.</string>
     <string name="err_mass_neg">Mass must be zero or more.</string>
 
-    <string name="disclaimer">Based on ASTM D1250-08 / API MPMS 11.1-2004 (generalized refined products, 15 °C base). For comparison with laboratory certificates of analysis. Not a certified measurement. Not yet checked against the official test data of the standard.</string>
+    <string name="disclaimer">Uses the API MPMS 11.1-2004 method, the basis of ASTM D1250-25 (refined products, 15 °C base). Changes from its 2007 and 2019 addenda are not yet checked. For comparison with laboratory certificates of analysis. Not a certified measurement.</string>
     <string name="density_mode_measured">Measured density</string>
     <string name="density_mode_api">API gravity</string>
     <string name="label_api">API gravity (°API)</string>

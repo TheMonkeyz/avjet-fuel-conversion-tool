@@ -7,7 +7,7 @@ import kotlin.math.floor
 /**
  * Aviation fuels the user can pick. The density is only a typical starting value.
  * The commodity group is chosen from the density at 60 °F, as the standard does
- * (ASTM D1250-08 / API MPMS Chapter 11.1-2004, generalized refined products).
+ * (API MPMS Chapter 11.1-2004, the method behind ASTM D1250-25; generalized refined products).
  */
 enum class Product(val label: String, val defaultDensity: Double) {
     JET_A1("Jet A-1 / JP-8", 800.0),
@@ -75,7 +75,7 @@ data class FuelInput(
 data class FuelResult(
     /** Which commodity group was used. */
     val group: FormulaGroup,
-    /** Thermal expansion coefficient at 60 °F, per °F (ASTM D1250-08). Null for a custom coefficient. */
+    /** Thermal expansion coefficient at 60 °F, per °F (API MPMS 11.1). Null for a custom coefficient. */
     val alpha60: Double?,
     /** The coefficient typed by the user, per °C. Null unless the product is custom. */
     val customAlpha: Double?,
@@ -167,7 +167,8 @@ data class Coefficients(
 
 /**
  * Volume correction of generalized refined products for temperature, as in
- * ASTM D1250-08 / API MPMS Chapter 11.1-2004 (the "Table 54B" and "Table 53B" equivalents).
+ * API MPMS Chapter 11.1-2004, the method behind ASTM D1250-25 (the "Table 54B" and "Table 53B"
+ * equivalents). The changes of Addendum 1 (2007) and Addendum 2 (2019) are not yet checked.
  *
  * The standard works at 60 °F, in °F, with temperatures on the IPTS-68 scale:
  *

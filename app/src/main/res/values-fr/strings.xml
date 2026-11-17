@@ -94,7 +94,7 @@
     <string name="mass_needs_density">Masse → volume a besoin d’une masse volumique. Choisissez Jet A-1, Jet A, Avgas ou Autre carburant.</string>
     <string name="err_mass_neg">La masse doit être zéro ou plus.</string>
 
-    <string name="disclaimer">Selon ASTM D1250-08 / API MPMS 11.1-2004 (produits raffinés, base 15 °C). Pour comparaison avec les certificats d’analyse des laboratoires. Pas une mesure certifiée. Pas encore vérifié avec les données d’essai officielles de la norme.</string>
+    <string name="disclaimer">Utilise la méthode API MPMS 11.1-2004, base de l’ASTM D1250-25 (produits raffinés, base 15 °C). Les modifications des addenda de 2007 et 2019 ne sont pas encore vérifiées. Pour comparaison avec les certificats d’analyse des laboratoires. Pas une mesure certifiée.</string>
     <string name="density_mode_measured">Masse vol. mesurée</string>
     <string name="density_mode_api">Densité API</string>
     <string name="label_api">Densité API (°API)</string>

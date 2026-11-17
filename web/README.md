@@ -1,7 +1,7 @@
 # Avjet fuel conversion tool (web / PWA)
 
 Web version of the Android app in this repo: aviation fuel volume correction to 15 °C with the
-ASTM D1250-08 / API MPMS 11.1-2004 method (generalized refined products, 15 °C base). Same features as the app: Volume (volume → mass and
+API MPMS 11.1-2004 method, the basis of ASTM D1250-25 (generalized refined products, 15 °C base). Same features as the app: Volume (volume → mass and
 mass → volume), Density chart, Density 15 °C (measured density or API gravity), English and French.
 
 Plain static files, no build step, no dependencies, no external requests. After the first visit it works

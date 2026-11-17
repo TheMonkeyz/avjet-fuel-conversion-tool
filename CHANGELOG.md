@@ -3,6 +3,13 @@
 Each version is a git tag and a GitHub Release with its signed Android APK. The web app is
 published from `main`. The method and its verification are in [docs/VALIDATION.md](docs/VALIDATION.md).
 
+## Unreleased
+
+- Target edition is now **ASTM D1250-25** (released December 2025), the current edition, in place
+  of D1250-08 (open item O3 closed). Screen text, code comments and docs updated. **No change to
+  the calculation**: the tool still uses the API MPMS 11.1-2004 procedure. The changes of its
+  Addendum 1 (2007) and Addendum 2 (2019) are a new open item, O8.
+
 ## 1.2.0 – 2026-11-16
 
 - **Calculation changed to ASTM D1250-08 / API MPMS Chapter 11.1-2004** (generalized refined

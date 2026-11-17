@@ -1,6 +1,7 @@
 // Port of core/src/main/kotlin/com/fuelvolume/core/FuelCalculator.kt. Keep the two identical.
 // Volume correction of generalized refined products for temperature, as in
-// ASTM D1250-08 / API MPMS Chapter 11.1-2004 ("Table 54B" and "Table 53B" equivalents).
+// API MPMS Chapter 11.1-2004, the method behind ASTM D1250-25 ("Table 54B" and "Table 53B"
+// equivalents). The changes of Addendum 1 (2007) and Addendum 2 (2019) are not yet checked.
 //
 // The standard works at 60 °F, in °F, with temperatures on the IPTS-68 scale:
 //   α60 = K0 / ρ*² + K1 / ρ* + K2

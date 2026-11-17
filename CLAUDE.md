@@ -1,8 +1,10 @@
 # Avjet fuel conversion tool
 
-Aviation fuel density and volume conversion (ASTM D1250-08 / API MPMS 11.1-2004, refined products,
-15 °C base). Android app (`app/`, `core/`) and a PWA (`web/`). Used to compare fuel data with
-laboratory certificates of analysis; not for sales. The repo may be shown to auditors.
+Aviation fuel density and volume conversion. Target standard: ASTM D1250-25 (API MPMS 11.1);
+the code uses the 2004 procedure, addenda not yet checked (refined products, 15 °C base).
+Android app (`app/`, `core/`) and a PWA (`web/`). Used to compare fuel data with laboratory
+certificates of analysis; not for sales. The repo may be shown to auditors. Do not write that the
+tool meets D1250-25 until open items O1 and O8 are closed.
 
 Read first: [README.md](README.md) (features, build), [docs/VALIDATION.md](docs/VALIDATION.md)
 (method, source of every constant, open items), [CHANGELOG.md](CHANGELOG.md).

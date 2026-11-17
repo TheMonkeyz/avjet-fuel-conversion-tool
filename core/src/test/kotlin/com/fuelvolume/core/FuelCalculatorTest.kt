@@ -8,7 +8,7 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
- * Tests of the ASTM D1250-08 / API MPMS 11.1-2004 implementation.
+ * Tests of the API MPMS 11.1-2004 implementation (the method behind ASTM D1250-25).
  *
  * IMPORTANT: none of these values come from the official standard yet. They check the internal
  * consistency of the method and that it stays close to the 1980 tables. Official test points

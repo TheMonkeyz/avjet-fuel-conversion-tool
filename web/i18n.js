@@ -100,7 +100,7 @@ const en = {
   err_mass_neg: 'Mass must be zero or more.',
 
   disclaimer:
-    'Based on ASTM D1250-08 / API MPMS 11.1-2004 (generalized refined products, 15 °C base). For comparison with laboratory certificates of analysis. Not a certified measurement. Not yet checked against the official test data of the standard.',
+    'Uses the API MPMS 11.1-2004 method, the basis of ASTM D1250-25 (refined products, 15 °C base). Changes from its 2007 and 2019 addenda are not yet checked. For comparison with laboratory certificates of analysis. Not a certified measurement.',
   density_mode_measured: 'Measured density',
   density_mode_api: 'API gravity',
   label_api: 'API gravity (°API)',
@@ -214,7 +214,7 @@ const fr = {
   err_mass_neg: 'La masse doit être zéro ou plus.',
 
   disclaimer:
-    'Selon ASTM D1250-08 / API MPMS 11.1-2004 (produits raffinés, base 15 °C). Pour comparaison avec les certificats d’analyse des laboratoires. Pas une mesure certifiée. Pas encore vérifié avec les données d’essai officielles de la norme.',
+    'Utilise la méthode API MPMS 11.1-2004, base de l’ASTM D1250-25 (produits raffinés, base 15 °C). Les modifications des addenda de 2007 et 2019 ne sont pas encore vérifiées. Pour comparaison avec les certificats d’analyse des laboratoires. Pas une mesure certifiée.',
   density_mode_measured: 'Masse vol. mesurée',
   density_mode_api: 'Densité API',
   label_api: 'Densité API (°API)',
