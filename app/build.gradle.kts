@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.fuelvolume.app"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.fuelvolume.app"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         // CI sets these from the git tag (v1.2.3) and the run number. Local builds keep the defaults.
         versionCode = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 1
         versionName = System.getenv("VERSION_NAME") ?: "1.0"
