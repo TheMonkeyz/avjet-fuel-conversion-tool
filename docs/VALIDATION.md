@@ -8,7 +8,7 @@ a test.
 | Item | Value |
 |---|---|
 | Tool | Avjet fuel conversion tool (Android app `com.fuelvolume.app` and web app) |
-| Version covered | 1.2.0 (git tag `v1.2.0`) |
+| Version covered | 1.2.1 (git tag `v1.2.1`) |
 | Source code | <https://github.com/TheMonkeyz/avjet-fuel-conversion-tool> |
 | Document status | Kept in the repository; change it in the same commit as any change to the math |
 

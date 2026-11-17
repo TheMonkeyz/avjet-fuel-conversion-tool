@@ -3,7 +3,7 @@
 Each version is a git tag and a GitHub Release with its signed Android APK. The web app is
 published from `main`. The method and its verification are in [docs/VALIDATION.md](docs/VALIDATION.md).
 
-## Unreleased
+## 1.2.1 – 2026-11-16
 
 - Target edition is now **ASTM D1250-25** (released December 2025), the current edition, in place
   of D1250-08 (open item O3 closed). Screen text, code comments and docs updated. **No change to
