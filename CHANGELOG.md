@@ -3,6 +3,13 @@
 Each version is a git tag and a GitHub Release with its signed Android APK. The web app is
 published from `main`. The method and its verification are in [docs/VALIDATION.md](docs/VALIDATION.md).
 
+## Unreleased
+
+- The Android app now targets **Android 16 (API 36)**, as Google Play requires since 31 Aug 2026
+  (`compileSdk` and `targetSdk` 35 → 36). Build tools: Android Gradle Plugin 8.7.3 → 8.13.2, Gradle
+  8.10.2 → 8.13. No library or source code change. **No change to the calculation.** Not yet
+  checked on an Android 16 device.
+
 ## 1.2.1 – 2026-11-16
 
 - Target edition is now **ASTM D1250-25** (released December 2025), the current edition, in place

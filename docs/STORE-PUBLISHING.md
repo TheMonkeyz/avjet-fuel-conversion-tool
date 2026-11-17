@@ -1,6 +1,7 @@
 # Plan: publishing on Google Play and the Apple App Store
 
-2026-11-16 · Status: draft, waiting for decisions · Nothing in this plan is done yet.
+2026-11-16 · Status: draft, waiting for decisions · Planned change 1 is built but not checked on a
+device; nothing else in this plan is done yet.
 
 ## Summary
 
@@ -13,6 +14,23 @@ client's decisions are in the client guide (kept outside this repo).
 
 ## Planned change 1: target API 36 (needed for Google Play)
 
+**Status, 2026-11-16: build change done, device check not done.** On branch `build/target-api-36`:
+
+- Versions used: Android Gradle Plugin 8.13.2 (newest 8.13 patch; 8.13 supports up to API 36.1,
+  [release notes](https://developer.android.com/build/releases/past-releases/agp-8-13-0-release-notes)),
+  Gradle 8.13, `compileSdk = 36`, `targetSdk = 36`, SDK platform `android-36` revision 2. Kotlin
+  2.0.21, Compose BOM 2024.12.01, activity-compose 1.9.3, core-ktx 1.15.0 and appcompat 1.7.0 did
+  not need a change. No source code change.
+- Checked on the PC: `:core:test` (31 tests) and `node --test web/` (32 tests) pass, as before the
+  change. `assembleDebug`, `assembleRelease` (unsigned) and `:app:lintDebug` succeed; lint shows no
+  finding about API 36. The merged manifest has `targetSdkVersion` 36 and the same permission list
+  as before (only `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, added by AndroidX core, also present
+  at API 35).
+- **Not checked:** none of the device checks below (edge-to-edge, language switch, wide window,
+  back gesture, test case). No Android 16 emulator is installed on the PC. The phone (Pixel 8 Pro)
+  runs Android 17 (API 37) and holds the release-signed build, so the new build was not installed
+  on it.
+
 Why: Google Play refuses new apps and updates that target less than API 36 since 31 Aug 2026
 ([source](https://developer.android.com/google/play/requirements/target-sdk)). This also applies to
 updates, so the change is needed before any Play release.
@@ -22,8 +40,9 @@ What changes:
 | File | Today | After |
 | --- | --- | --- |
 | `app/build.gradle.kts` | `compileSdk = 35`, `targetSdk = 35` | `compileSdk = 36`, `targetSdk = 36` |
-| Android Gradle Plugin (`build.gradle.kts`) | 8.7.3, made for API 35 | A version that supports API 36. Expect this change. Confirm the minimum version in the Android Gradle Plugin release notes (not confirmed yet) |
-| Compose BOM and AndroidX libraries (`app/build.gradle.kts`) | Current versions | Raised only if the build with SDK 36 needs it |
+| Android Gradle Plugin (`build.gradle.kts`) | 8.7.3, made for API 35 | 8.13.2 (supports up to API 36.1; needs Gradle 8.13) |
+| Gradle wrapper (`gradle/wrapper/`) | 8.10.2 | 8.13 |
+| Compose BOM and AndroidX libraries (`app/build.gradle.kts`) | Current versions | No change: the build with SDK 36 did not need one |
 
 What does not change: the calculation (`core/`), `minSdk = 26`, the package name
 `com.fuelvolume.app`, the release key.
